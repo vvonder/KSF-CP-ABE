@@ -1,0 +1,494 @@
+------------------------------------------------------------------------
+r146 | waldoayo | 2011-02-07 10:24:57 -0500 (Mon, 07 Feb 2011) | 1 line
+
+update
+------------------------------------------------------------------------
+r145 | waldoayo | 2011-02-07 10:19:20 -0500 (Mon, 07 Feb 2011) | 1 line
+
+updates to toolkit
+------------------------------------------------------------------------
+r144 | waldoayo | 2011-02-06 14:49:38 -0500 (Sun, 06 Feb 2011) | 1 line
+
+preparing build for release
+------------------------------------------------------------------------
+r143 | waldoayo | 2011-02-06 14:23:18 -0500 (Sun, 06 Feb 2011) | 1 line
+
+removed warnings in toolkit
+------------------------------------------------------------------------
+r142 | waldoayo | 2010-12-23 19:58:56 -0500 (Thu, 23 Dec 2010) | 1 line
+
+added config options for architectures
+------------------------------------------------------------------------
+r141 | micharu123 | 2010-11-23 17:28:51 -0500 (Tue, 23 Nov 2010) | 1 line
+
+Sorry... refrain from using bleeding edge tools sometimes.  Modfication of configure/make.
+------------------------------------------------------------------------
+r140 | micharu123 | 2010-11-23 17:02:07 -0500 (Tue, 23 Nov 2010) | 1 line
+
+Updating configure, and including pbc patches for PBC to build dll.
+------------------------------------------------------------------------
+r139 | micharu123 | 2010-11-21 22:23:47 -0500 (Sun, 21 Nov 2010) | 1 line
+
+Modification to configure script, mingw compiler support.
+------------------------------------------------------------------------
+r138 | waldoayo | 2010-11-17 17:59:59 -0500 (Wed, 17 Nov 2010) | 1 line
+
+modified build script
+------------------------------------------------------------------------
+r137 | waldoayo | 2010-11-17 17:35:21 -0500 (Wed, 17 Nov 2010) | 1 line
+
+adding script to build for arm
+------------------------------------------------------------------------
+r136 | micharu123 | 2010-11-14 21:11:01 -0500 (Sun, 14 Nov 2010) | 1 line
+
+AC_LIBTOOL_WIN32 modification in configure.ac
+------------------------------------------------------------------------
+r135 | micharu123 | 2010-11-03 01:57:16 -0400 (Wed, 03 Nov 2010) | 1 line
+
+Part2 of the README update...
+------------------------------------------------------------------------
+r134 | micharu123 | 2010-11-02 12:40:53 -0400 (Tue, 02 Nov 2010) | 1 line
+
+Removed symbolic links...
+------------------------------------------------------------------------
+r133 | micharu123 | 2010-11-02 12:39:43 -0400 (Tue, 02 Nov 2010) | 1 line
+
+Autotool modifications, libtool macro symbolic links included rather than linked.
+------------------------------------------------------------------------
+r132 | waldoayo | 2010-10-11 13:56:21 -0400 (Mon, 11 Oct 2010) | 1 line
+
+cleanup warnings in new abe policy lang
+------------------------------------------------------------------------
+r131 | waldoayo | 2010-10-11 12:38:58 -0400 (Mon, 11 Oct 2010) | 1 line
+
+clean up tools
+------------------------------------------------------------------------
+r130 | waldoayo | 2010-10-11 12:25:07 -0400 (Mon, 11 Oct 2010) | 1 line
+
+updated makefile src
+------------------------------------------------------------------------
+r129 | waldoayo | 2010-10-11 11:20:30 -0400 (Mon, 11 Oct 2010) | 1 line
+
+updating policy lang src
+------------------------------------------------------------------------
+r124 | micharu123 | 2010-10-03 18:01:57 -0400 (Sun, 03 Oct 2010) | 1 line
+
+
+------------------------------------------------------------------------
+r123 | micharu123 | 2010-10-03 17:59:15 -0400 (Sun, 03 Oct 2010) | 1 line
+
+Trunk being modified to our 1.0 release.  Old trunk can be access via branch dev-0.9 and tag release-0.9.
+------------------------------------------------------------------------
+r110 | waldoayo | 2010-08-24 16:38:14 -0400 (Tue, 24 Aug 2010) | 1 line
+
+more fixes
+------------------------------------------------------------------------
+r109 | waldoayo | 2010-08-24 16:37:48 -0400 (Tue, 24 Aug 2010) | 1 line
+
+fixing a few bugs
+------------------------------------------------------------------------
+r108 | waldoayo | 2010-08-24 02:45:05 -0400 (Tue, 24 Aug 2010) | 1 line
+
+more clean-up code
+------------------------------------------------------------------------
+r107 | waldoayo | 2010-08-24 02:40:53 -0400 (Tue, 24 Aug 2010) | 1 line
+
+simplifying key functions
+------------------------------------------------------------------------
+r106 | waldoayo | 2010-08-24 01:43:29 -0400 (Tue, 24 Aug 2010) | 1 line
+
+added new helper parse functions.
+------------------------------------------------------------------------
+r105 | waldoayo | 2010-08-12 15:27:35 -0400 (Thu, 12 Aug 2010) | 1 line
+
+added corret padding to AES ciphertext
+------------------------------------------------------------------------
+r104 | waldoayo | 2010-08-06 16:42:03 -0400 (Fri, 06 Aug 2010) | 1 line
+
+misc updates to facilitate benchmarks
+------------------------------------------------------------------------
+r103 | waldoayo | 2010-08-05 23:52:03 -0400 (Thu, 05 Aug 2010) | 1 line
+
+updates to make fenc more efficient
+------------------------------------------------------------------------
+r102 | matthewdgreen | 2010-08-05 11:47:26 -0400 (Thu, 05 Aug 2010) | 1 line
+
+optimizations to WatersCP
+------------------------------------------------------------------------
+r101 | micharu123 | 2010-08-02 15:43:57 -0400 (Mon, 02 Aug 2010) | 1 line
+
+Modified PKI certificate request to DSA key gen.  Also added more verbose details of the keys and certificates.
+------------------------------------------------------------------------
+r100 | waldoayo | 2010-08-02 14:50:57 -0400 (Mon, 02 Aug 2010) | 1 line
+
+updates to tools
+------------------------------------------------------------------------
+r99 | waldoayo | 2010-08-02 14:50:37 -0400 (Mon, 02 Aug 2010) | 1 line
+
+updates to benchmark utilities
+------------------------------------------------------------------------
+r98 | waldoayo | 2010-08-01 23:58:14 -0400 (Sun, 01 Aug 2010) | 1 line
+
+updates to pbc configure.ac
+------------------------------------------------------------------------
+r97 | micharu123 | 2010-07-30 18:17:18 -0400 (Fri, 30 Jul 2010) | 1 line
+
+Quick modification to build-SSL-abeCrt.sh
+------------------------------------------------------------------------
+r96 | micharu123 | 2010-07-30 17:53:33 -0400 (Fri, 30 Jul 2010) | 1 line
+
+Added build-SSL-abeCrt.sh.  This script will provide assistant on setting up a test SSL environment, and creating a certificate for ABE keys; CN = attributes.
+------------------------------------------------------------------------
+r95 | micharu123 | 2010-07-29 17:21:04 -0400 (Thu, 29 Jul 2010) | 1 line
+
+
+------------------------------------------------------------------------
+r94 | micharu123 | 2010-07-29 14:16:34 -0400 (Thu, 29 Jul 2010) | 1 line
+
+Update to test.sh so we can test CP and KP.
+------------------------------------------------------------------------
+r93 | micharu123 | 2010-07-26 15:43:14 -0400 (Mon, 26 Jul 2010) | 1 line
+
+Small update to testSSL.sh
+------------------------------------------------------------------------
+r92 | micharu123 | 2010-07-26 12:17:38 -0400 (Mon, 26 Jul 2010) | 1 line
+
+Added testSSl shell script to setup an SSL/TLS enabled-apache server using openssl.
+------------------------------------------------------------------------
+r91 | waldoayo | 2010-07-22 19:19:26 -0400 (Thu, 22 Jul 2010) | 1 line
+
+fixes to helper functions
+------------------------------------------------------------------------
+r90 | waldoayo | 2010-07-22 19:19:02 -0400 (Thu, 22 Jul 2010) | 1 line
+
+integrated implementation of LSW scheme into toolchain.
+------------------------------------------------------------------------
+r89 | waldoayo | 2010-07-22 15:31:49 -0400 (Thu, 22 Jul 2010) | 1 line
+
+added non-fully tested implementation of key import/export of LSW scheme
+------------------------------------------------------------------------
+r88 | waldoayo | 2010-07-22 13:39:58 -0400 (Thu, 22 Jul 2010) | 1 line
+
+updated setup and keygen to support KP and CP
+------------------------------------------------------------------------
+r87 | waldoayo | 2010-07-21 04:18:12 -0400 (Wed, 21 Jul 2010) | 1 line
+
+minor update to dec
+------------------------------------------------------------------------
+r86 | waldoayo | 2010-07-20 18:27:58 -0400 (Tue, 20 Jul 2010) | 1 line
+
+adding fix to WatersSimpleCP
+------------------------------------------------------------------------
+r85 | waldoayo | 2010-07-20 14:21:27 -0400 (Tue, 20 Jul 2010) | 1 line
+
+few updates to benchmark utility
+------------------------------------------------------------------------
+r84 | waldoayo | 2010-07-19 18:24:27 -0400 (Mon, 19 Jul 2010) | 1 line
+
+more updates
+------------------------------------------------------------------------
+r83 | waldoayo | 2010-07-19 18:19:00 -0400 (Mon, 19 Jul 2010) | 1 line
+
+few updates to benchmark utility
+------------------------------------------------------------------------
+r82 | waldoayo | 2010-07-19 17:51:53 -0400 (Mon, 19 Jul 2010) | 1 line
+
+adding switch for debugging
+------------------------------------------------------------------------
+r81 | waldoayo | 2010-07-19 16:18:21 -0400 (Mon, 19 Jul 2010) | 1 line
+
+Added some bug fixes
+------------------------------------------------------------------------
+r80 | micharu123 | 2010-07-19 09:36:42 -0400 (Mon, 19 Jul 2010) | 1 line
+
+Removed warnings part1. grep UNFINISHED * to find commented out sections that were causing unused params/variable warnings.  Explicit castings applied.
+------------------------------------------------------------------------
+r79 | micharu123 | 2010-07-12 14:43:58 -0400 (Mon, 12 Jul 2010) | 1 line
+
+Compile-time warning fixes for tools; added install to usr/local/bin.
+------------------------------------------------------------------------
+r78 | waldoayo | 2010-07-12 14:38:01 -0400 (Mon, 12 Jul 2010) | 1 line
+
+a few updates
+------------------------------------------------------------------------
+r77 | waldoayo | 2010-07-10 14:08:48 -0400 (Sat, 10 Jul 2010) | 1 line
+
+Adding benchmark utility
+------------------------------------------------------------------------
+r76 | matthewdgreen | 2010-07-08 14:57:53 -0400 (Thu, 08 Jul 2010) | 2 lines
+
+modified README a bit:
+
+------------------------------------------------------------------------
+r75 | matthewdgreen | 2010-07-08 14:36:01 -0400 (Thu, 08 Jul 2010) | 1 line
+
+moved the readme file
+------------------------------------------------------------------------
+r74 | waldoayo | 2010-07-08 01:47:06 -0400 (Thu, 08 Jul 2010) | 1 line
+
+README updates
+------------------------------------------------------------------------
+r73 | waldoayo | 2010-07-08 01:27:32 -0400 (Thu, 08 Jul 2010) | 1 line
+
+reorg part 2
+------------------------------------------------------------------------
+r72 | waldoayo | 2010-07-08 01:27:11 -0400 (Thu, 08 Jul 2010) | 1 line
+
+reorganizing code
+------------------------------------------------------------------------
+r71 | waldoayo | 2010-07-08 01:13:06 -0400 (Thu, 08 Jul 2010) | 1 line
+
+more minor updates
+------------------------------------------------------------------------
+r70 | waldoayo | 2010-07-07 17:54:35 -0400 (Wed, 07 Jul 2010) | 1 line
+
+minor updates
+------------------------------------------------------------------------
+r69 | waldoayo | 2010-07-06 15:49:43 -0400 (Tue, 06 Jul 2010) | 1 line
+
+minor fixes to hash_attribute_string_to_Zr
+------------------------------------------------------------------------
+r68 | matthewdgreen | 2010-07-06 13:29:19 -0400 (Tue, 06 Jul 2010) | 1 line
+
+a number of small updates
+------------------------------------------------------------------------
+r67 | matthewdgreen | 2010-07-06 11:41:28 -0400 (Tue, 06 Jul 2010) | 1 line
+
+removed non-KEM encryption mode
+------------------------------------------------------------------------
+r66 | matthewdgreen | 2010-07-06 11:33:10 -0400 (Tue, 06 Jul 2010) | 1 line
+
+added hooks for Waters simple scheme to libfenc.c
+------------------------------------------------------------------------
+r65 | matthewdgreen | 2010-07-06 11:32:17 -0400 (Tue, 06 Jul 2010) | 1 line
+
+updated Makefile
+------------------------------------------------------------------------
+r64 | matthewdgreen | 2010-07-06 11:31:12 -0400 (Tue, 06 Jul 2010) | 1 line
+
+added simple Waters scheme
+------------------------------------------------------------------------
+r62 | micharu123 | 2010-06-30 16:06:33 -0400 (Wed, 30 Jun 2010) | 1 line
+
+Updated configure to allow for dll construction.  Successfull install on multiple platforms, post this update will make a few more changes to allow configure script arguments for simple architecture choices (i.e. configuring ABI, and arch).
+------------------------------------------------------------------------
+r61 | waldoayo | 2010-06-24 14:33:23 -0400 (Thu, 24 Jun 2010) | 1 line
+
+Added error handling to toolchain
+------------------------------------------------------------------------
+r60 | waldoayo | 2010-06-24 12:49:21 -0400 (Thu, 24 Jun 2010) | 1 line
+
+Re-organized common code in toolchain
+------------------------------------------------------------------------
+r58 | micharu123 | 2010-06-14 12:12:25 -0400 (Mon, 14 Jun 2010) | 1 line
+
+config.h removed from fenc include/ ;)
+------------------------------------------------------------------------
+r57 | micharu123 | 2010-06-14 11:40:29 -0400 (Mon, 14 Jun 2010) | 1 line
+
+Building PBC debs is now automated.
+------------------------------------------------------------------------
+r56 | micharu123 | 2010-06-09 11:35:29 -0400 (Wed, 09 Jun 2010) | 1 line
+
+small updates, preferennce changes
+------------------------------------------------------------------------
+r55 | micharu123 | 2010-06-09 01:03:26 -0400 (Wed, 09 Jun 2010) | 1 line
+
+updated included pbc version.
+------------------------------------------------------------------------
+r54 | micharu123 | 2010-06-08 22:05:16 -0400 (Tue, 08 Jun 2010) | 1 line
+
+Make file triggering automake1.11 error fixed for pbc, src, and tools.  Install directory default changed to /usr/.
+------------------------------------------------------------------------
+r53 | micharu123 | 2010-06-03 20:59:35 -0400 (Thu, 03 Jun 2010) | 1 line
+
+... compile in linux and os x w/out automake ver warnings.
+------------------------------------------------------------------------
+r52 | micharu123 | 2010-06-03 20:45:23 -0400 (Thu, 03 Jun 2010) | 1 line
+
+install text file edit... information concerning linux ldconf
+------------------------------------------------------------------------
+r51 | micharu123 | 2010-06-03 20:43:12 -0400 (Thu, 03 Jun 2010) | 1 line
+
+configure src/ pbc-0.5.6/ modification.
+------------------------------------------------------------------------
+r50 | micharu123 | 2010-06-03 20:32:24 -0400 (Thu, 03 Jun 2010) | 1 line
+
+ran autoreconf on pbc-0.5.6 as it would seem automake versions were incorrect (1.10* vs 1.11)... expect the same for src/ in a few.
+------------------------------------------------------------------------
+r49 | micharu123 | 2010-06-03 20:07:15 -0400 (Thu, 03 Jun 2010) | 1 line
+
+Addition of a shell script to set dynamic lib path for linux (ubuntu 10.04 tested).
+------------------------------------------------------------------------
+r48 | micharu123 | 2010-06-03 19:32:46 -0400 (Thu, 03 Jun 2010) | 1 line
+
+Deleted MDG_NOTES, Unknown, TODO, unnecessary files from auto* -- rolled previous notes the bottom of README. Edited documentation:  README, AUTHORS, NEWS, COPYING -- not 100% complete.  Modified configure.ac to cover macports, and additional CFLAGS.  Added a new build script for 64 bit leopard.
+------------------------------------------------------------------------
+r47 | micharu123 | 2010-06-02 20:41:38 -0400 (Wed, 02 Jun 2010) | 1 line
+
+Forgot src/ scripts
+------------------------------------------------------------------------
+r46 | micharu123 | 2010-06-02 20:33:06 -0400 (Wed, 02 Jun 2010) | 1 line
+
+Configure scripts for dynamic libs added to tools/ src/.
+------------------------------------------------------------------------
+r45 | micharu123 | 2010-06-02 20:18:00 -0400 (Wed, 02 Jun 2010) | 1 line
+
+Compilation of useful build scripts added to central scripts dir.
+------------------------------------------------------------------------
+r44 | waldoayo | 2010-06-01 10:14:11 -0400 (Tue, 01 Jun 2010) | 1 line
+
+added id to encryption tags
+------------------------------------------------------------------------
+r43 | waldoayo | 2010-05-27 09:08:58 -0400 (Thu, 27 May 2010) | 1 line
+
+fixed some gcc warnings, and removed non-standard code
+------------------------------------------------------------------------
+r42 | waldoayo | 2010-05-27 09:01:41 -0400 (Thu, 27 May 2010) | 1 line
+
+removed a few gcc warnings, added a demo function to fenc API.
+------------------------------------------------------------------------
+r41 | waldoayo | 2010-05-25 14:23:08 -0400 (Tue, 25 May 2010) | 1 line
+
+removed accidental commments
+------------------------------------------------------------------------
+r40 | waldoayo | 2010-05-25 14:18:07 -0400 (Tue, 25 May 2010) | 1 line
+
+Added helper function to retrieve policy string
+------------------------------------------------------------------------
+r39 | waldoayo | 2010-05-20 14:19:40 -0400 (Thu, 20 May 2010) | 1 line
+
+added char* field to policy structure for serialization
+------------------------------------------------------------------------
+r38 | waldoayo | 2010-05-20 14:17:10 -0400 (Thu, 20 May 2010) | 1 line
+
+added numerical attributes to keygen, cleaned up decryption and policy-tool
+------------------------------------------------------------------------
+r37 | waldoayo | 2010-05-16 11:03:44 -0400 (Sun, 16 May 2010) | 1 line
+
+increased output policy buffer size
+------------------------------------------------------------------------
+r36 | waldoayo | 2010-05-16 11:02:41 -0400 (Sun, 16 May 2010) | 1 line
+
+fixed a few mem leaks
+------------------------------------------------------------------------
+r35 | waldoayo | 2010-05-15 01:46:26 -0400 (Sat, 15 May 2010) | 1 line
+
+removed a print stmt
+------------------------------------------------------------------------
+r34 | waldoayo | 2010-05-15 01:43:12 -0400 (Sat, 15 May 2010) | 1 line
+
+fixed bug in bison parser for parsing numerical attributes
+------------------------------------------------------------------------
+r33 | waldoayo | 2010-05-15 01:38:56 -0400 (Sat, 15 May 2010) | 1 line
+
+adding policy tester
+------------------------------------------------------------------------
+r32 | waldoayo | 2010-05-08 02:35:27 -0400 (Sat, 08 May 2010) | 1 line
+
+fixed policy to string function of thresholds. Output consistent with bison parser
+------------------------------------------------------------------------
+r31 | waldoayo | 2010-05-07 21:45:25 -0400 (Fri, 07 May 2010) | 1 line
+
+added key import to dec tool.
+------------------------------------------------------------------------
+r29 | waldoayo | 2010-05-07 19:33:48 -0400 (Fri, 07 May 2010) | 1 line
+
+key-gen code done. Needs more testing.
+------------------------------------------------------------------------
+r28 | waldoayo | 2010-05-07 19:22:08 -0400 (Fri, 07 May 2010) | 1 line
+
+fixed key serialization / deserialization, implemented key export and import, and cleaned up a few warnings in WatersCP code
+------------------------------------------------------------------------
+r24 | waldoayo | 2010-04-22 23:48:02 -0400 (Thu, 22 Apr 2010) | 1 line
+
+deleting Xcode dSYM files from repo
+------------------------------------------------------------------------
+r23 | matthewdgreen | 2010-04-22 15:33:55 -0400 (Thu, 22 Apr 2010) | 1 line
+
+added an error handler case to the export_components and import_components routines
+------------------------------------------------------------------------
+r22 | matthewdgreen | 2010-04-22 15:14:11 -0400 (Thu, 22 Apr 2010) | 1 line
+
+foo
+------------------------------------------------------------------------
+r21 | waldoayo | 2010-04-22 12:57:06 -0400 (Thu, 22 Apr 2010) | 1 line
+
+added stub key export/import funcs to libfenc interface
+------------------------------------------------------------------------
+r20 | waldoayo | 2010-04-22 12:17:08 -0400 (Thu, 22 Apr 2010) | 1 line
+
+abe-dec proto complete
+------------------------------------------------------------------------
+r19 | waldoayo | 2010-04-21 21:54:27 -0400 (Wed, 21 Apr 2010) | 1 line
+
+Updates to makefile and dec tool.
+------------------------------------------------------------------------
+r18 | matthewdgreen | 2010-04-21 14:17:18 -0400 (Wed, 21 Apr 2010) | 1 line
+
+added a paper
+------------------------------------------------------------------------
+r16 | waldoayo | 2010-04-19 11:05:21 -0400 (Mon, 19 Apr 2010) | 1 line
+
+proto tools to use libfenc. Still needs some work.
+------------------------------------------------------------------------
+r15 | waldoayo | 2010-04-19 01:36:10 -0400 (Mon, 19 Apr 2010) | 1 line
+
+very minor fixes.
+------------------------------------------------------------------------
+r14 | matthewdgreen | 2010-04-17 22:31:24 -0400 (Sat, 17 Apr 2010) | 1 line
+
+foo
+------------------------------------------------------------------------
+r13 | matthewdgreen | 2010-04-17 21:34:16 -0400 (Sat, 17 Apr 2010) | 1 line
+
+got decryption working right in WatersCP
+------------------------------------------------------------------------
+r12 | matthewdgreen | 2010-04-17 14:48:36 -0400 (Sat, 17 Apr 2010) | 1 line
+
+added CP encryption routines
+------------------------------------------------------------------------
+r11 | matthewdgreen | 2010-04-17 00:14:24 -0400 (Sat, 17 Apr 2010) | 1 line
+
+foo
+------------------------------------------------------------------------
+r10 | matthewdgreen | 2010-04-17 00:07:44 -0400 (Sat, 17 Apr 2010) | 1 line
+
+foo
+------------------------------------------------------------------------
+r9 | waldoayo | 2010-04-16 12:40:26 -0400 (Fri, 16 Apr 2010) | 1 line
+
+recommit of parser fixes
+------------------------------------------------------------------------
+r8 | matthewdgreen | 2010-04-15 17:26:47 -0400 (Thu, 15 Apr 2010) | 1 line
+
+added some dummy code mocking up the WatersCP routines
+------------------------------------------------------------------------
+r7 | waldoayo | 2010-04-08 22:29:15 -0400 (Thu, 08 Apr 2010) | 1 line
+
+Bison parser fixed, and policy to string parser fixed. Still cant handle < or >, etc in parser though. More to come.
+------------------------------------------------------------------------
+r6 | matthewdgreen | 2010-04-06 16:19:25 -0400 (Tue, 06 Apr 2010) | 1 line
+
+foo
+------------------------------------------------------------------------
+r5 | matthewdgreen | 2010-03-01 14:58:45 -0500 (Mon, 01 Mar 2010) | 1 line
+
+foo
+------------------------------------------------------------------------
+r4 | venkata.shravan@gmail.com | 2010-03-01 14:29:08 -0500 (Mon, 01 Mar 2010) | 1 line
+
+
+------------------------------------------------------------------------
+r3 | matthewdgreen | 2010-02-26 14:16:41 -0500 (Fri, 26 Feb 2010) | 1 line
+
+Added PBC 0.5.6 to the trunk (this is GPLed code)
+------------------------------------------------------------------------
+r2 | matthewdgreen | 2010-02-26 11:53:05 -0500 (Fri, 26 Feb 2010) | 1 line
+
+First commit
+------------------------------------------------------------------------
+r1 | (no author) | 2010-01-04 11:58:06 -0500 (Mon, 04 Jan 2010) | 1 line
+
+Initial directory structure.
+------------------------------------------------------------------------

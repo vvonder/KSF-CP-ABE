@@ -1,0 +1,99 @@
+
+LIBFENC -- The Functional Encryption Library
+
+-------------------------------------------------------------------------------------------
+
+The FENC library has a few dependancies: GMP, PBC, and OPENSSL devel libraries, which are 
+found at:
+
+    GMP http://www.swox.com/gmp/
+    PBC http://crypto.stanford.edu/pbc/news.html 
+    OPENSSL http://www.openssl.org/
+
+The install will also require that you install bison, a GNU parser generator found at:
+
+   http://www.gnu.org/software/bison/
+
+If you forget to install bison, your make will not complete and it will specifically 
+complain about not being able to find bison.  
+Note that prior to installing new packages, if you have a package manager or software update
+application, run a software update on all of your current packages.  This will help
+eliminate possible confusion when dependancies don't link as they should.
+
+This library has been tested under Linux (ubuntu, crunchbang, fedora, opensuse) and Unix
+(Mac OS X w/ and w/out fink/macports installation, Open Solaris).  You may need to 
+appropriately assign library and include paths to satisfy the above dependancies if not 
+installed in the default /usr/ location.  See ./configure --help for more help.
+
+The common installation procedure is as follows:
+./configure ABI=32 --enable-optimized
+make
+make install
+
+Note that if GMP, PBC, and OPENSSL were installed in non-standard paths then specify the
+following arguments when executing configure.
+./configure LDFLAGS=-L"/path/to/library/above" CPPFLAGS=-I"/path/to/includes/above"
+
+See ./configure --help for other options.
+
+
+BUILDING IN FEDORA 14
+------------------------
+First, ensure that you have binutils-devel, a gcc compiler, etc.  A simple fix for a cleanly
+installed machine would be: yum groupinstall "Development Tools" "Development Libraries".
+
+Once this is done, you will need to install the above library dependencies: GMP, PBC, and
+OPENSSL (don't forget bison).  You can either use the Add/Remove Software package manager, 
+YUM, RPM if you have the packages, or build via the source from the links above.
+
+
+BUILDING UNDER UBUNTU 10.10 / CRUNCHBANG 9.04
+-------------------------------------------------
+By default, the Ubuntu 10 (and previous installs) should already have the appropriate 
+developmental tools and libraries installed for installing the library dependancies 
+mentioned above: GMP, PBC, and OPENSSL (don't forget bison).  You can use either the Synaptic 
+Package Manager under System, dpkg if you have the debian packages, apt-get, or build via
+the source from the links above.
+
+As for crunchbang, you will need to install the following the first: sudo apt-get install 
+build-essential.  Crunchbang <= 9.04 is based on Ubuntu, so the rest is the same.  If you
+are utilizing Crunchbang Statler, than you are dealing with a Debian Squeeze base.  Please
+reference dpkg for more help here.
+
+BUILDING IN MAC OS X 10.6
+----------------------------
+Above installation procedure applies to the Mac OS X environment.
+
+BUILDING PBC IN MULTI-ARCHITECTURE CPUs
+---------------------------------------
+To specify a particular architecture, pass the following arguments to the configure script:
+./configure CC="gcc -arch i386" CXX="g++ -arch i386"
+OR
+./configure CC="gcc -arch x86_64" CXX="g++ -arch x86_64" 
+OR 
+./configure CC="gcc -arch i386 -arch x86_64" \
+            CXX="g++ -arch i386 -arch x86_64" \
+	    CPP="gcc -E" CXXCPP="g++ -E" \
+	    (for both 32-bit and 64-bit x86 architectures)
+
+Then, proceed with "make" and "make install".
+
+KNOWN ISSUES USING MAC PORTS
+----------------------------
+Under the 64-bit Linux environment, we noted a problem with linking libraries that
+were installed to /usr/local/lib/.  To mitigate this error, attempt a sudo ldconfig as your
+first step.  This should link your libraries in.
+
+Under MacOSX environment, if you have installed GMP via macports, you will run into a 
+build error in libfenc concerning a missing gmp.h include.  To mitigate this error you 
+will need to adjust the header, pbc.h, in the PBC source ./include/.  Modify the 
+#include <gmp.h> to "/opt/local/include/gmp.h".  
+
+
+NEED MORE HELP?
+------------------
+Please see our wiki for more information concerning your specific operating environment.
+http://code.google.com/p/libfenc/w/list
+
+Also, subscribe to our mailing list for reporting bugs, questions, and development information (libfenc-devel at googlegroups dot com)
+

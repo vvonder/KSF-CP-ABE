@@ -1,0 +1,31 @@
+
+LIBFENC -- The Functional Encryption Library
+
+-------------------------------------------------------------------------------------------
+
+Matthew D. Green <mgreen at cs dot jhu dot edu> (Main author)
+
+Joseph Ayo Akinyele <waldoayo at gmail dot com> (Main author)
+    Miscellaneous bug, memory leak fixes.  
+    Miscellaneous bison parser, error handling fixes.
+    Mac OS X build (XCode).
+    Libfenc Wiki Development / Maintenance.
+    Key serialization / deserialization / keygen.
+    Tools implementation (ciphertext policy).
+    Added encryption tags.
+
+Michael A. Rushanan <micharu123 at gmail dot com>
+    Autotools.
+    Mac OS X build (macports/fink).
+    Miscellaneous documentation.
+    Miscellaneous build shell scripts (environment specific).
+    Test shell script to utilize ciphertext policy.
+
+
+** If your name is missing, please contact us to ensure it is added!
+
+-------------------------------------------------------------------------------------------
+
+If you have feature suggestions, bug reports, questions, or want to let us
+know how your using the library, you can reach us at waldoayo AT gmail DOT com or
+mgreen AT cs DOT jhu DOT edu.

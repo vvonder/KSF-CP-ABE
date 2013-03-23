@@ -1,0 +1,9 @@
+INSTALL
+-------
+
+The FENC toolkit requires that the FENC library is configured and installed to the standard path (e.g. /usr/lib/ or /usr/local/lib) and assume the OpenSSL library is installed. To get the toolkit working, simply do the following:
+
+make
+make install
+
+In order to run the tools, you will need the pbc elliptic curve parameters stored in the params dir (e.g. d224.param). Simply copy that file into the current or target directory. If you have any questions or concerns, please email us at libfenc-devel at googlegroups dot com.
