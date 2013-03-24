@@ -1830,13 +1830,45 @@ libfenc_import_upk_KSFCP(fenc_context *context, fenc_UPK_KSFCP *upk, uint8 *buff
 FENC_ERROR
 libfenc_export_usk_KSFCP(fenc_context *context, fenc_USK_KSFCP *usk, uint8 *buffer, size_t buf_len, size_t *result_len)
 {
-	/* Return success. */
-	return FENC_ERROR_NONE;
+	FENC_ERROR err_code = FENC_ERROR_NONE;
+	fenc_scheme_context_KSFCP *scheme_context;
+	unsigned char *buf_ptr = (unsigned char*)buffer;
+
+	/* Get the scheme-specific context. */
+	scheme_context = (fenc_scheme_context_KSFCP*)context->scheme_context;
+	if (scheme_context == NULL) {
+		return FENC_ERROR_INVALID_CONTEXT;
+	}
+
+	err_code = export_components_to_buffer(buf_ptr, buf_len, result_len, "%E",
+										   usk->uZ);
+	if (err_code != FENC_ERROR_NONE) {
+		return err_code;
+	}
+
+cleanup:
+	return err_code;
 }
 
 FENC_ERROR
 libfenc_export_upk_KSFCP(fenc_context *context, fenc_UPK_KSFCP *upk, uint8 *buffer, size_t buf_len, size_t *result_len)
 {
-	/* Return success. */
-	return FENC_ERROR_NONE;
+	FENC_ERROR err_code = FENC_ERROR_NONE;
+	fenc_scheme_context_KSFCP *scheme_context;
+	unsigned char *buf_ptr = (unsigned char*)buffer;
+
+	/* Get the scheme-specific context. */
+	scheme_context = (fenc_scheme_context_KSFCP*)context->scheme_context;
+	if (scheme_context == NULL) {
+		return FENC_ERROR_INVALID_CONTEXT;
+	}
+
+	err_code = export_components_to_buffer(buf_ptr, buf_len, result_len, "%C",
+										   upk->gu_1TWO);
+	if (err_code != FENC_ERROR_NONE) {
+		return err_code;
+	}
+
+cleanup:
+	return err_code;
 }

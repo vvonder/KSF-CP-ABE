@@ -254,7 +254,7 @@ int generate_keys(char *outfile, FENC_SCHEME_TYPE scheme, char *g_params, char *
 	result = libfenc_extract_key(&context, &func_object_input, &key);
 	report_error("Extracting a decryption key", result);
 
-	buffer = (uint8 *) malloc(KEYSIZE_MAX+1);
+	buffer = (uint8 *) malloc(KEYSIZE_MAX);
 	memset(buffer, 0, KEYSIZE_MAX);
 	result = libfenc_export_secret_key(&context, &key, buffer, KEYSIZE_MAX, &serialized_len);
 	report_error("Exporting key", result);
