@@ -21,7 +21,7 @@ int abe_encrypt_from_file(FENC_SCHEME_TYPE scheme, char *key_string, char *g_par
 fenc_attribute_policy *construct_test_policy();
 
 /* Description: mgabe-keygen takes the outfile to write the users keys, and the .
- 
+
  */
 int main (int argc, char *argv[]) {
 	int aflag,pflag,dflag,oflag,iflag,xflag;
@@ -32,17 +32,17 @@ int main (int argc, char *argv[]) {
 	ssize_t data_len;
 	FILE *fp;
 	int c, exit_status = -1;
-		
+
 	opterr = 0;
 	// default
 	aflag = pflag = dflag = oflag = iflag = xflag = FALSE;
 
-	
+
 	while ((c = getopt (argc, argv, "a:d:i:o:m:p:xh")) != -1) {
-		
+
 		switch (c)
 		{
-			case 'a': // retrieve attributes from user 
+			case 'a': // retrieve attributes from user
 				aflag = TRUE;
 				attribute_string = strdup(optarg);
 				break;
@@ -53,7 +53,7 @@ int main (int argc, char *argv[]) {
 			case 'i':
 				if(dflag == TRUE) /* i or d option, but not both */
 					break;
-				
+
 				iflag = TRUE;
 				fp = fopen(optarg, "r");
 				if(fp != NULL) {
@@ -80,7 +80,7 @@ int main (int argc, char *argv[]) {
 				oflag = TRUE;
 				enc_file = optarg;
 				break;
-			case 'm': 
+			case 'm':
 				if (strcmp(optarg, SCHEME_LSW) == 0) {
 					debug("Encrypting for Lewko-Sahai-Waters KP scheme...\n");
 					mode = FENC_SCHEME_LSW;
@@ -91,6 +91,18 @@ int main (int argc, char *argv[]) {
 					debug("Encrypting for Waters CP scheme...\n");
 					mode = FENC_SCHEME_WATERSCP;
 					public_params = PUBLIC_FILE".cp";
+					ext = "cpabe";
+				}
+				else if(strcmp(optarg, SCHEME_WSCP) == 0) {
+					debug("Encrypting for Waters Simple CP scheme...\n");
+					mode = FENC_SCHEME_WATERSSIMPLECP;
+					public_params = PUBLIC_FILE".scp";
+					ext = "cpabe";
+				}
+				else if(strcmp(optarg, SCHEME_KSFCP) == 0) {
+					debug("Encrypting for KSF-CP scheme...\n");
+					mode = FENC_SCHEME_KSFCP;
+					public_params = PUBLIC_FILE".ksfcp";
 					ext = "cpabe";
 				}
 				break;
@@ -114,39 +126,41 @@ int main (int argc, char *argv[]) {
 				return 1;
 		}
 	}
-	
+
 	if(dflag == FALSE && iflag == FALSE) {
 		fprintf(stderr, "Need some data to encrypt!\n");
 		print_help();
 		return -1;
-	}	
-	
+	}
+
 	if(aflag == FALSE && mode == FENC_SCHEME_LSW) {
 		fprintf(stderr, "No attribute list specified!\n");
 		print_help();
 		goto clean;
 	}
-	
-	if(pflag == FALSE && mode == FENC_SCHEME_WATERSCP) {
+
+	if(pflag == FALSE &&
+		(mode == FENC_SCHEME_WATERSCP
+		|| mode == FENC_SCHEME_WATERSSIMPLECP || mode == FENC_SCHEME_KSFCP)) {
 		fprintf(stderr, "No policy specified to encrypt data!\n");
 		print_help();
 		goto clean;
-	}	
+	}
 
 	if(oflag == FALSE) {
 		fprintf(stderr, "Specify file to store ciphertext!\n");
 		print_help();
 		goto clean;
 	}
-	
+
 	if(mode == FENC_SCHEME_NONE) {
 		fprintf(stderr, "Please specify a scheme type\n");
 		print_help();
 		goto clean;
 	}
-	
+
 	exit_status=abe_encrypt(mode, PARAM, public_params, data, enc_file, xflag, ext);
-clean:	
+clean:
 	free(data);
 	// free attr
 	return exit_status;
@@ -178,16 +192,16 @@ int abe_encrypt(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, ch
 	/* Clear data structures. */
 	memset(&context, 0, sizeof(fenc_context));
 	memset(&group_params, 0, sizeof(fenc_group_params));
-	memset(&global_params, 0, sizeof(fenc_global_params));	
+	memset(&global_params, 0, sizeof(fenc_global_params));
 	memset(&public_params_buf, 0, SIZE);
 	memset(&ciphertext, 0, sizeof(fenc_ciphertext));
 	memset(pol_str, 0, pol_str_len);
-	
+
 	/* Initialize the library. */
 	result = libfenc_init();
 	/* Create a Sahai-Waters context. */
 	result = libfenc_create_context(&context, scheme);
-	
+
 	/* Load group parameters from a file. */
 	fp = fopen(g_params, "r");
 	if (fp != NULL) {
@@ -198,14 +212,14 @@ int abe_encrypt(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, ch
 		return -1;
 	}
 	fclose(fp);
-	
+
 	/* Set up the global parameters. */
 	result = context.generate_global_params(&global_params, &group_params);
 	report_error("Loading global parameters", result);
-	
+
 	result = libfenc_gen_params(&context, &global_params);
 	report_error("Generating scheme parameters and secret key", result);
-	
+
 	debug("Reading the public parameters file = %s\n", public_params);
 	/* read file */
 	fp = fopen(public_params, "r");
@@ -226,7 +240,7 @@ int abe_encrypt(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, ch
 		return -1;
 	}
 	fclose(fp);
-		
+
 	if(scheme == FENC_SCHEME_LSW) {
 		result=fenc_create_func_input_for_attributes(attribute_string, &func_object_input);
 		if(result != FENC_ERROR_NONE) {
@@ -237,7 +251,8 @@ int abe_encrypt(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, ch
 		debug_print_attribute_list((fenc_attribute_list*)(func_object_input.scheme_input));
 		free(attribute_string);
 	}
-	else if(scheme == FENC_SCHEME_WATERSCP) {
+	else if(scheme == FENC_SCHEME_WATERSCP || scheme == FENC_SCHEME_WATERSSIMPLECP
+			|| scheme == FENC_SCHEME_KSFCP) {
 		result=fenc_create_func_input_for_policy(policy_string, &func_object_input);
 		if(result != FENC_ERROR_NONE) {
 			free(policy_string);
@@ -247,32 +262,32 @@ int abe_encrypt(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, ch
 		debug_print_policy((fenc_attribute_policy *)(func_object_input.scheme_input));
 		free(policy_string);
 	}
-	
+
 	/* base-64 decode */
 	uint8 *bin_public_buf = NewBase64Decode((const char *) public_params_buf, pub_len, &serialized_len);
 	// printf("public params binary = '%s'\n", bin_public_buf);
-	
+
 	/* Import the parameters from binary buffer: */
 	result = libfenc_import_public_params(&context, bin_public_buf, serialized_len);
 	// report_error("Importing public parameters", result);
-	
+
 	/* key encapsulation to obtain session key from policy */
-	result = libfenc_kem_encrypt(&context, &func_object_input, SESSION_KEY_LEN, (uint8 *)session_key, &ciphertext);	
-	
+	result = libfenc_kem_encrypt(&context, &func_object_input, SESSION_KEY_LEN, (uint8 *)session_key, &ciphertext);
+
 	/* generated PSK from policy string */
 	debug("Generated session key: ");
 	print_buffer_as_hex((uint8 *) session_key, SESSION_KEY_LEN);
 
 	/* encrypted blob that belongs in the <ABED></ABE> tags */
 	// print_buffer_as_hex(ciphertext.data, ciphertext.data_len);
-		
+
 	/* use the PSK to encrypt using openssl functions here */
 	AES_KEY key;
 	size_t iv_length;
 	uint8 iv[AES_BLOCK_SIZE+1];
 	int data_len = (int) ceil((strlen(data) + strlen(MAGIC))/(double)(AES_BLOCK_SIZE)) * AES_BLOCK_SIZE; // round to nearest multiple of 16-bytes
 	char aes_ciphertext[data_len], data_magic[data_len];
-	
+
 	/* generate a random IV */
 	memset(iv, 0, AES_BLOCK_SIZE);
 	RAND_bytes((uint8 *) iv, AES_BLOCK_SIZE);
@@ -285,11 +300,11 @@ int abe_encrypt(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, ch
 	sprintf(data_magic, MAGIC"%s", data);
 	debug("\nEncrypting data...\n");
 	debug("\tPlaintext is => '%s'.\n", data);
-	
+
 	AES_cbc_encrypt((uint8 *)data_magic, (uint8 *) aes_ciphertext, data_len, &key, (uint8 *) iv, AES_ENCRYPT);
 	// printf("\tAES Ciphertext base 64: ");
 	// print_buffer_as_hex((uint8 *) aes_ciphertext, data_len);
-	
+
 	char filename[strlen(enc_file)+1];
 	memset(filename, 0, strlen(enc_file));
 	uint8 *rand_id[BYTES+1];
@@ -312,7 +327,7 @@ int abe_encrypt(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, ch
 	size_t abe_length, aes_length;
 	char *ABE_cipher_base64 = NewBase64Encode(ciphertext.data, ciphertext.data_len, FALSE, &abe_length);
 	char *AES_cipher_base64 = NewBase64Encode(aes_ciphertext, data_len, FALSE, &aes_length);
-	
+
 	/* output ciphertext to disk: either xml or custom format */
 	if(isXML) {
 		fprintf(fp,"<Encrypted id='");
@@ -328,16 +343,16 @@ int abe_encrypt(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, ch
 		fprintf(fp, AES_TOKEN":%s:"AES_TOKEN_END, AES_cipher_base64);
 		fclose(fp);
 	}
-		
+
 	if(ABE_cipher_base64 != NULL)
 		free(ABE_cipher_base64);
 	if(ABE_cipher_base64 != NULL)
 		free(AES_cipher_base64);
 	if(iv_base64 != NULL)
 		free(iv_base64);
-	
+
 	fenc_func_input_clear(&func_object_input);
-	
+
 	/* Shutdown the library. */
 	result = libfenc_shutdown();
 	report_error("Shutting down library", result);

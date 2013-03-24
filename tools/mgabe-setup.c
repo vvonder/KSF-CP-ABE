@@ -11,12 +11,12 @@ int main(int argc, char * argv[]) {
 	int c;
 	FENC_SCHEME_TYPE mode = FENC_SCHEME_NONE;
 	char *secret_params = NULL, *public_params = NULL;
-	
+
 	while ((c = getopt (argc, argv, "m:h")) != -1) {
-		
+
 		switch (c)
 		{
-			case 'm': 
+			case 'm':
 				if (strcmp(optarg, SCHEME_LSW) == 0) {
 					debug("Generating Lewko-Sahai-Waters KP scheme parameters...\n");
 					mode = FENC_SCHEME_LSW;
@@ -33,12 +33,18 @@ int main(int argc, char * argv[]) {
 					debug("Generating Waters Simple CP scheme parameters...\n");
 					mode = FENC_SCHEME_WATERSSIMPLECP;
 					secret_params = SECRET_FILE".scp";
-					public_params = PUBLIC_FILE".scp";					
+					public_params = PUBLIC_FILE".scp";
+				}
+				else if(strcmp(optarg, SCHEME_KSFCP) == 0) {
+					debug("Generating KSF-CP scheme parameters...\n");
+					mode = FENC_SCHEME_KSFCP;
+					secret_params = SECRET_FILE".ksfcp";
+					public_params = PUBLIC_FILE".ksfcp";
 				}
 				break;
 			case 'h':
 				print_help();
-				return 1;			  
+				return 1;
 			case '?':
 				if (optopt == 'm')
 					fprintf (stderr, "Option -%o requires an argument.\n", optopt);
@@ -53,13 +59,13 @@ int main(int argc, char * argv[]) {
 				return 1;
 		}
 	}
-	
+
 	if(mode == FENC_SCHEME_NONE) {
 		fprintf(stderr, "Please specify a scheme type\n");
 		print_help();
 		return 1;
 	}
-	
+
 	return gen_abe_scheme_params(mode, PARAM, secret_params, public_params);
 }
 
@@ -81,21 +87,21 @@ int gen_abe_scheme_params(FENC_SCHEME_TYPE scheme, char *g_params, char *secret_
 	uint8* secret_params_buf = NULL;
 	char *publicBuffer = NULL;
 	char *secretBuffer = NULL;
-	
+
 	/* Clear data structures. */
 	memset(&context, 0, sizeof(fenc_context));
 	memset(&group_params, 0, sizeof(fenc_group_params));
 	memset(&global_params, 0, sizeof(fenc_global_params));
-	
+
 	/* Initialize the library. */
 	result = libfenc_init();
-	report_error("Initializing library", result);	
-	
+	report_error("Initializing library", result);
+
 	// insert code here...
 	debug("Generating master ABE system parameters...\n");
 	/* Create a Sahai-Waters context. */
-	result = libfenc_create_context(&context, scheme);	
-	
+	result = libfenc_create_context(&context, scheme);
+
 	/* Load group parameters from a file. */
 	fp = fopen(g_params, "r");
 	if (fp != NULL) {
@@ -106,14 +112,14 @@ int gen_abe_scheme_params(FENC_SCHEME_TYPE scheme, char *g_params, char *secret_
 		goto cleanup;
 	}
 	fclose(fp);
-	
+
 	/* Set up the global parameters. */
 	result = context.generate_global_params(&global_params, &group_params);
 	report_error("Loading global parameters", result);
 
 	result = libfenc_gen_params(&context, &global_params);
 	report_error("Generating scheme parameters and secret key", result);
-	
+
 	/* Serialize the public parameters into a buffer */
 	result = libfenc_export_public_params(&context, NULL, 0, &serialized_len, FALSE);
 	if (result != FENC_ERROR_NONE) { report_error("Computing public parameter output size", result); }
@@ -129,14 +135,14 @@ int gen_abe_scheme_params(FENC_SCHEME_TYPE scheme, char *g_params, char *secret_
 	size_t publicLength;
 	publicBuffer = NewBase64Encode(public_params_buf, serialized_len, FALSE, &publicLength);
 	debug("'%s'\n", publicBuffer);
-			
+
 	/* base-64 encode the pub params and write to disk */
 	fp = fopen(public_params, "w");
 	if(fp != NULL) {
 		fprintf(fp, "%s", publicBuffer);
 	}
 	fclose(fp);
-	
+
 	/* Serialize the secret parameters into a buffer (not strictly necessary, just a test). */
 	result = libfenc_export_secret_params(&context, NULL, 0, &serialized_len, NULL, 0);
 	if (result != FENC_ERROR_NONE) { report_error("Computing secret parameter output size", result); }
@@ -146,12 +152,12 @@ int gen_abe_scheme_params(FENC_SCHEME_TYPE scheme, char *g_params, char *secret_
 	}
 	result = libfenc_export_secret_params(&context, secret_params_buf, serialized_len, &serialized_len, NULL, 0);
 	report_error("Exporting secret parameters", result);
-	
+
 	debug("Base-64 encoding secret parameters...\n");
 	size_t secretLength;
 	secretBuffer = NewBase64Encode(secret_params_buf, serialized_len, FALSE, &secretLength);
 	debug("'%s'\n", secretBuffer);
-	
+
 	/* base-64 encode the pub params and write to disk */
 	fp = fopen(secret_params, "w");
 	if(fp != NULL) {
@@ -162,11 +168,11 @@ cleanup:
 	/* Destroy the context. */
 	result = libfenc_destroy_context(&context);
 	report_error("Destroying context", result);
-	
+
 	/* Shutdown the library. */
 	result = libfenc_shutdown();
-	report_error("Shutting down library", result);	
-	
+	report_error("Shutting down library", result);
+
 	free(public_params_buf);
 	free(publicBuffer);
 	free(secretBuffer);

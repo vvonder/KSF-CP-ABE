@@ -12,6 +12,7 @@
 #include <libfenc_LSSS.h>
 #include <libfenc_WatersCP.h>
 #include <libfenc_LSW.h>
+#include <libfenc_KSFCP.h>
 #include <abe_policy.h>
 #include <pbc/pbc.h>
 #include <math.h>
@@ -20,7 +21,8 @@
 #define SCHEME_LSW "KP"
 #define SCHEME_WCP "CP"
 #define SCHEME_WSCP "SCP"
-enum Scheme {LSW, WCP, SWCP, NONE};
+#define SCHEME_KSFCP "KSFCP"
+enum Scheme {LSW, WCP, SWCP, KSFCP, NONE};
 typedef enum Scheme SchemeType;
 
 #ifdef DEBUG
