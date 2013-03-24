@@ -88,7 +88,7 @@ libfenc_la_LIBADD =
 am_libfenc_la_OBJECTS = libfenc.lo libfenc_LSW.lo libfenc_WatersCP.lo \
 	libfenc_ABE_common.lo libfenc_LSSS.lo \
 	libfenc_WatersSimpleCP.lo libfenc_group_params.lo \
-	libfenc_utils.lo sha1.lo abe_policy.tab.lo
+	libfenc_utils.lo sha1.lo abe_policy.tab.lo libfenc_KSFCP.lo
 libfenc_la_OBJECTS = $(am_libfenc_la_OBJECTS)
 libfenc_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
@@ -161,18 +161,18 @@ GZIP_ENV = --best
 distuninstallcheck_listfiles = find . -type f -print
 distcleancheck_listfiles = find . -type f -print
 ABI = 
-ACLOCAL = ${SHELL} /d/project/fenc/fenc/missing --run aclocal-1.11
+ACLOCAL = ${SHELL} /C/Users/wonder/Desktop/src/fenc/missing --run aclocal-1.11
 ALLOCA = 
-AMTAR = ${SHELL} /d/project/fenc/fenc/missing --run tar
+AMTAR = ${SHELL} /C/Users/wonder/Desktop/src/fenc/missing --run tar
 AR = ar
 AS = as
-AUTOCONF = ${SHELL} /d/project/fenc/fenc/missing --run autoconf
-AUTOHEADER = ${SHELL} /d/project/fenc/fenc/missing --run autoheader
-AUTOMAKE = ${SHELL} /d/project/fenc/fenc/missing --run automake-1.11
+AUTOCONF = ${SHELL} /C/Users/wonder/Desktop/src/fenc/missing --run autoconf
+AUTOHEADER = ${SHELL} /C/Users/wonder/Desktop/src/fenc/missing --run autoheader
+AUTOMAKE = ${SHELL} /C/Users/wonder/Desktop/src/fenc/missing --run automake-1.11
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -Wall -W -Wfloat-equal -Wpointer-arith -Wcast-align -Wredundant-decls -Wendif-labels -Wshadow -pipe -ffast-math -U__STRICT_ANSI__ -fomit-frame-pointer -O3
+CFLAGS = -Wall -W -Wfloat-equal -Wpointer-arith -Wcast-align -Wredundant-decls -Wendif-labels -Wshadow -pipe -ffast-math -U__STRICT_ANSI__ -g -O2 -DDEBUG
 CPP = gcc -E
 CPPFLAGS = -I/usr/include -I/usr/local/include -I/usr/local/ssl/include
 CYGPATH_W = echo
@@ -207,7 +207,7 @@ LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LIPO = 
 LN_S = cp -p
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /d/project/fenc/fenc/missing --run makeinfo
+MAKEINFO = ${SHELL} /C/Users/wonder/Desktop/src/fenc/missing --run makeinfo
 MANIFEST_TOOL = :
 MKDIR_P = /bin/mkdir -p
 NM = /mingw/bin/nm
@@ -230,12 +230,12 @@ SET_MAKE =
 SHELL = /bin/sh
 STRIP = strip
 VERSION = 0.2.0
-YACC = ${SHELL} /d/project/fenc/fenc/missing --run bison -y
+YACC = ${SHELL} /C/Users/wonder/Desktop/src/fenc/missing --run bison -y
 YFLAGS = 
-abs_builddir = /d/project/fenc/fenc
-abs_srcdir = /d/project/fenc/fenc
-abs_top_builddir = /d/project/fenc/fenc
-abs_top_srcdir = /d/project/fenc/fenc
+abs_builddir = /C/Users/wonder/Desktop/src/fenc
+abs_srcdir = /C/Users/wonder/Desktop/src/fenc
+abs_top_builddir = /C/Users/wonder/Desktop/src/fenc
+abs_top_srcdir = /C/Users/wonder/Desktop/src/fenc
 ac_ct_AR = ar
 ac_ct_CC = gcc
 ac_ct_DUMPBIN = 
@@ -264,7 +264,7 @@ host_vendor = pc
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /d/project/fenc/fenc/install-sh
+install_sh = ${SHELL} /C/Users/wonder/Desktop/src/fenc/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -308,13 +308,14 @@ libfenc_LSW.h \
 libfenc_utils.h \
 libfenc_WatersCP.h \
 libfenc_WatersSimpleCP.h \
+libfenc_KSFCP.h \
 abe_policy.h \
 abe_policy.y \
 sha1.h
 
 libfenc_la_SOURCES = libfenc.c libfenc_LSW.c libfenc_WatersCP.c \
 	libfenc_ABE_common.c libfenc_LSSS.c libfenc_WatersSimpleCP.c \
-	libfenc_group_params.c libfenc_utils.c sha1.c abe_policy.tab.c
+	libfenc_group_params.c libfenc_utils.c sha1.c abe_policy.tab.c libfenc_KSFCP.c
 
 libfenc_la_LDFLAGS = -lgmp -lpbc -lm -version-info $(SO_VERSION) $(FENC_LDFLAGS) $(LIBFENC_LDFLAGS)
 libfenc_la_LIBS = -lstdc++
@@ -420,6 +421,7 @@ distclean-compile:
 include ./$(DEPDIR)/abe_policy.tab.Plo
 include ./$(DEPDIR)/libfenc.Plo
 include ./$(DEPDIR)/libfenc_ABE_common.Plo
+include ./$(DEPDIR)/libfenc_KSFCP.Plo
 include ./$(DEPDIR)/libfenc_LSSS.Plo
 include ./$(DEPDIR)/libfenc_LSW.Plo
 include ./$(DEPDIR)/libfenc_WatersCP.Plo
