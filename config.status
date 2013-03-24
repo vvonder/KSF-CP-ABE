@@ -449,7 +449,7 @@ Copyright (C) 2010 Free Software Foundation, Inc.
 This config.status script is free software; the Free Software Foundation
 gives unlimited permission to copy, distribute and modify it."
 
-ac_pwd='/C/Users/wonder/Desktop/src/fenc'
+ac_pwd='/C/Users/wonder/Desktop/src/KSF-CP-ABE'
 srcdir='.'
 INSTALL='/bin/install -c'
 MKDIR_P='/bin/mkdir -p'
@@ -855,7 +855,7 @@ S["LIBFENC_LDFLAGS"]=" -Wl,--output-def,.libs/libfenc.dll.def"
 S["FENC_LDFLAGS"]=" -no-undefined -Wl,--export-all-symbols"
 S["LIBFENC_DLL"]="1"
 S["AS"]="as"
-S["YACC"]="${SHELL} /C/Users/wonder/Desktop/src/fenc/missing --run bison -y"
+S["YACC"]="${SHELL} /C/Users/wonder/Desktop/src/KSF-CP-ABE/missing --run bison -y"
 S["am__fastdepCC_FALSE"]="#"
 S["am__fastdepCC_TRUE"]=""
 S["CCDEPMODE"]="depmode=gcc3"
@@ -867,18 +867,18 @@ S["am__include"]="include"
 S["DEPDIR"]=".deps"
 S["am__untar"]="${AMTAR} xf -"
 S["am__tar"]="${AMTAR} chof - \"$$tardir\""
-S["AMTAR"]="${SHELL} /C/Users/wonder/Desktop/src/fenc/missing --run tar"
+S["AMTAR"]="${SHELL} /C/Users/wonder/Desktop/src/KSF-CP-ABE/missing --run tar"
 S["am__leading_dot"]="."
 S["SET_MAKE"]=""
 S["mkdir_p"]="/bin/mkdir -p"
 S["MKDIR_P"]="/bin/mkdir -p"
 S["INSTALL_STRIP_PROGRAM"]="$(install_sh) -c -s"
-S["install_sh"]="${SHELL} /C/Users/wonder/Desktop/src/fenc/install-sh"
-S["MAKEINFO"]="${SHELL} /C/Users/wonder/Desktop/src/fenc/missing --run makeinfo"
-S["AUTOHEADER"]="${SHELL} /C/Users/wonder/Desktop/src/fenc/missing --run autoheader"
-S["AUTOMAKE"]="${SHELL} /C/Users/wonder/Desktop/src/fenc/missing --run automake-1.11"
-S["AUTOCONF"]="${SHELL} /C/Users/wonder/Desktop/src/fenc/missing --run autoconf"
-S["ACLOCAL"]="${SHELL} /C/Users/wonder/Desktop/src/fenc/missing --run aclocal-1.11"
+S["install_sh"]="${SHELL} /C/Users/wonder/Desktop/src/KSF-CP-ABE/install-sh"
+S["MAKEINFO"]="${SHELL} /C/Users/wonder/Desktop/src/KSF-CP-ABE/missing --run makeinfo"
+S["AUTOHEADER"]="${SHELL} /C/Users/wonder/Desktop/src/KSF-CP-ABE/missing --run autoheader"
+S["AUTOMAKE"]="${SHELL} /C/Users/wonder/Desktop/src/KSF-CP-ABE/missing --run automake-1.11"
+S["AUTOCONF"]="${SHELL} /C/Users/wonder/Desktop/src/KSF-CP-ABE/missing --run autoconf"
+S["ACLOCAL"]="${SHELL} /C/Users/wonder/Desktop/src/KSF-CP-ABE/missing --run aclocal-1.11"
 S["VERSION"]="0.2.0"
 S["PACKAGE"]="fenc"
 S["CYGPATH_W"]="echo"

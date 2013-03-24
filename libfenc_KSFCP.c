@@ -730,12 +730,17 @@ FENC_ERROR	libfenc_export_public_params_KSFCP(fenc_context *context, uint8 *buff
 
 	/* Export the elements to the buffer.  Note that if buffer is NULL this routine will
 	 * just compute the necessary buffer length.									*/
-	err_code = export_components_to_buffer(buffer, max_len, result_len, "%C%C%C%C%E",
+	err_code = export_components_to_buffer(buffer, max_len, result_len, "%C%C%C%C%E%C%C%E",
 									   &(scheme_context->public_params.gONE),
 									   &(scheme_context->public_params.gTWO),
 									   &(scheme_context->public_params.gaONE),
 									   &(scheme_context->public_params.gaTWO),
-									   &(scheme_context->public_params.eggalphaT));
+									   &(scheme_context->public_params.eggalphaT),
+										/* for KSF */
+										&(scheme_context->public_params.ggammaTWO),
+										&(scheme_context->public_params.hTWO),
+										&(scheme_context->public_params.eggbetaT)
+											);
 
 	return err_code;
 }
@@ -762,8 +767,12 @@ libfenc_export_secret_params_KSFCP(fenc_context *context, uint8 *buffer, size_t 
 
 	/* Export the elements to the buffer.  Note that if buffer is NULL this routine will
 	 * just compute the necessary buffer length.									*/
-	return export_components_to_buffer(buffer, max_len, result_len, "%E",
-									   &(scheme_context->secret_params.alphaZ));
+	return export_components_to_buffer(buffer, max_len, result_len, "%E%E%E",
+									   &(scheme_context->secret_params.alphaZ),
+										/* for KSF */
+										&(scheme_context->secret_params.betaZ),
+										&(scheme_context->secret_params.gammaZ)
+										);
 }
 
 /*!
@@ -797,12 +806,17 @@ libfenc_import_public_params_KSFCP(fenc_context *context, uint8 *buffer, size_t 
 	public_params_initialize_KSFCP(&(scheme_context->public_params), scheme_context->global_params->pairing);
 
 	/* Import the elements from the buffer.								*/
-	return import_components_from_buffer(buffer, buf_len, NULL, "%C%C%C%C%E",
+	return import_components_from_buffer(buffer, buf_len, NULL, "%C%C%C%C%E%C%C%E",
 										 &(scheme_context->public_params.gONE),
 										 &(scheme_context->public_params.gTWO),
 										 &(scheme_context->public_params.gaONE),
 										 &(scheme_context->public_params.gaTWO),
-										 &(scheme_context->public_params.eggalphaT));
+										 &(scheme_context->public_params.eggalphaT),
+										/* for KSF */
+										&(scheme_context->public_params.ggammaTWO),
+										&(scheme_context->public_params.hTWO),
+										&(scheme_context->public_params.eggbetaT)
+										);
 }
 
 /*!
@@ -828,8 +842,12 @@ libfenc_import_secret_params_KSFCP(fenc_context *context, uint8 *buffer, size_t 
 	/* Initialize the secret parameters, allocating group elements.		*/
 	secret_params_initialize_KSFCP(&(scheme_context->secret_params), scheme_context->global_params->pairing);
 
-	return import_components_from_buffer(buffer, buf_len, NULL, "%E",
-										 &(scheme_context->secret_params.alphaZ));
+	return import_components_from_buffer(buffer, buf_len, NULL, "%E%E%E",
+										 &(scheme_context->secret_params.alphaZ),
+										/* for KSF */
+										&(scheme_context->secret_params.betaZ),
+										&(scheme_context->secret_params.gammaZ)
+										);
 }
 
 
@@ -1459,6 +1477,10 @@ fenc_ciphertext_KSFCP_initialize(fenc_ciphertext_KSFCP *ciphertext, fenc_attribu
 	element_init_GT(ciphertext->CT, scheme_context->global_params->pairing);
 	element_set1(ciphertext->CT);
 	element_init_G1(ciphertext->CprimeONE, scheme_context->global_params->pairing);
+
+	/* for KSF */
+	element_init_G2(ciphertext->CgammaTWO, scheme_context->global_params->pairing);
+
 	for (i = 0; i < attribute_list->num_attributes; i++) {
 		element_init_G1(ciphertext->CONE[i], scheme_context->global_params->pairing);
 		element_init_G2(ciphertext->DTWO[i], scheme_context->global_params->pairing);
@@ -1489,6 +1511,10 @@ fenc_ciphertext_KSFCP_clear(fenc_ciphertext_KSFCP *ciphertext)
 	/* Release all of the internal elements.  Let's hope the ciphertext was correctly inited! */
 	element_clear(ciphertext->CT);
 	element_clear(ciphertext->CprimeONE);
+
+	/* for KSF */
+	element_clear(ciphertext->CgammaTWO);
+
 	for (i = 0; i < ciphertext->attribute_list.num_attributes; i++) {
 		element_clear(ciphertext->CONE[i]);
 		element_clear(ciphertext->DTWO[i]);
@@ -1641,6 +1667,11 @@ public_params_initialize_KSFCP(fenc_public_params_KSFCP *params, pairing_t pairi
 	element_init_G2(params->gaTWO, pairing);
 	element_init_GT(params->eggalphaT, pairing);
 
+	/* for KSF */
+	element_init_G2(params->ggammaTWO, pairing);
+	element_init_G2(params->hTWO, pairing);
+	element_init_GT(params->eggbetaT, pairing);
+
 	return FENC_ERROR_NONE;
 }
 
@@ -1659,6 +1690,10 @@ secret_params_initialize_KSFCP(fenc_secret_params_KSFCP *params, pairing_t pairi
 	memset(params, 0, sizeof(fenc_secret_params_KSFCP));
 
 	element_init_Zr(params->alphaZ, pairing);
+
+	/* for KSF */
+	element_init_Zr(params->betaZ, pairing);
+	element_init_Zr(params->gammaZ, pairing);
 
 	return FENC_ERROR_NONE;
 }

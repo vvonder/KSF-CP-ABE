@@ -32,7 +32,7 @@ PATH: /usr/local/bin
 PATH: /mingw/bin
 PATH: /bin
 PATH: /c/Program Files (x86)/NVIDIA Corporation/PhysX/Common
-PATH: %CommonProgramFiles%/Microsoft Shared/Windows Live
+PATH: /c/Program Files/Common Files/Microsoft Shared/Windows Live
 PATH: /c/Windows/system32
 PATH: /c/Windows
 PATH: /c/Windows/System32/Wbem
@@ -408,7 +408,7 @@ configure:11567: result: dlltool
 configure:11632: checking for objdump
 configure:11659: result: objdump
 configure:11739: checking for bison
-configure:11766: result: ${SHELL} /C/Users/wonder/Desktop/src/fenc/missing --run bison -y
+configure:11766: result: ${SHELL} /C/Users/wonder/Desktop/src/KSF-CP-ABE/missing --run bison -y
 configure:11826: checking for gcc
 configure:11853: result: gcc
 configure:12082: checking for C compiler version
@@ -453,12 +453,12 @@ configure:12392: checking lex output file root
 configure:12406: result: lex.yy
 configure:12411: checking lex library
 configure:12425: gcc -o conftest.exe -g -O2 -I/usr/include -I/usr/local/include -I/usr/local/ssl/include -L/usr/lib -L/usr/local/lib -L/usr/local/ssl/lib conftest.c   >&5
-C:\Users\wonder\AppData\Local\Temp\ccezhz1r.o: In function `input':
-c:\Users\wonder\Desktop\src\fenc/lex.yy.c:1182: undefined reference to `yywrap'
-C:\Users\wonder\AppData\Local\Temp\ccezhz1r.o: In function `yylex':
-c:\Users\wonder\Desktop\src\fenc/lex.yy.c:881: undefined reference to `yywrap'
-C:\Users\wonder\AppData\Local\Temp\ccezhz1r.o: In function `main':
-c:\Users\wonder\Desktop\src\fenc/conftest.l:17: undefined reference to `yywrap'
+C:\Users\wonder\AppData\Local\Temp\ccdTpNUr.o: In function `input':
+c:\Users\wonder\Desktop\src\KSF-CP-ABE/lex.yy.c:1182: undefined reference to `yywrap'
+C:\Users\wonder\AppData\Local\Temp\ccdTpNUr.o: In function `yylex':
+c:\Users\wonder\Desktop\src\KSF-CP-ABE/lex.yy.c:881: undefined reference to `yywrap'
+C:\Users\wonder\AppData\Local\Temp\ccdTpNUr.o: In function `main':
+c:\Users\wonder\Desktop\src\KSF-CP-ABE/conftest.l:17: undefined reference to `yywrap'
 collect2.exe: error: ld returned 1 exit status
 configure:12425: $? = 1
 configure: failed program was:
@@ -2663,7 +2663,7 @@ ac_cv_path_mkdir=/bin/mkdir
 ac_cv_prog_AWK=gawk
 ac_cv_prog_CPP='gcc -E'
 ac_cv_prog_LEX=flex
-ac_cv_prog_YACC='${SHELL} /C/Users/wonder/Desktop/src/fenc/missing --run bison -y'
+ac_cv_prog_YACC='${SHELL} /C/Users/wonder/Desktop/src/KSF-CP-ABE/missing --run bison -y'
 ac_cv_prog_ac_ct_AR=ar
 ac_cv_prog_ac_ct_AS=as
 ac_cv_prog_ac_ct_CC=gcc
@@ -2711,17 +2711,17 @@ lt_cv_to_tool_file_cmd=func_convert_file_msys_to_w32
 ## ----------------- ##
 
 ABI=''
-ACLOCAL='${SHELL} /C/Users/wonder/Desktop/src/fenc/missing --run aclocal-1.11'
+ACLOCAL='${SHELL} /C/Users/wonder/Desktop/src/KSF-CP-ABE/missing --run aclocal-1.11'
 ALLOCA=''
 AMDEPBACKSLASH='\'
 AMDEP_FALSE='#'
 AMDEP_TRUE=''
-AMTAR='${SHELL} /C/Users/wonder/Desktop/src/fenc/missing --run tar'
+AMTAR='${SHELL} /C/Users/wonder/Desktop/src/KSF-CP-ABE/missing --run tar'
 AR='ar'
 AS='as'
-AUTOCONF='${SHELL} /C/Users/wonder/Desktop/src/fenc/missing --run autoconf'
-AUTOHEADER='${SHELL} /C/Users/wonder/Desktop/src/fenc/missing --run autoheader'
-AUTOMAKE='${SHELL} /C/Users/wonder/Desktop/src/fenc/missing --run automake-1.11'
+AUTOCONF='${SHELL} /C/Users/wonder/Desktop/src/KSF-CP-ABE/missing --run autoconf'
+AUTOHEADER='${SHELL} /C/Users/wonder/Desktop/src/KSF-CP-ABE/missing --run autoheader'
+AUTOMAKE='${SHELL} /C/Users/wonder/Desktop/src/KSF-CP-ABE/missing --run automake-1.11'
 AWK='gawk'
 CC='gcc'
 CCDEPMODE='depmode=gcc3'
@@ -2759,7 +2759,7 @@ LIBTOOL='$(SHELL) $(top_builddir)/libtool'
 LIPO=''
 LN_S='cp -p'
 LTLIBOBJS=''
-MAKEINFO='${SHELL} /C/Users/wonder/Desktop/src/fenc/missing --run makeinfo'
+MAKEINFO='${SHELL} /C/Users/wonder/Desktop/src/KSF-CP-ABE/missing --run makeinfo'
 MANIFEST_TOOL=':'
 MKDIR_P='/bin/mkdir -p'
 NM='/mingw/bin/nm'
@@ -2782,7 +2782,7 @@ SET_MAKE=''
 SHELL='/bin/sh'
 STRIP='strip'
 VERSION='0.2.0'
-YACC='${SHELL} /C/Users/wonder/Desktop/src/fenc/missing --run bison -y'
+YACC='${SHELL} /C/Users/wonder/Desktop/src/KSF-CP-ABE/missing --run bison -y'
 YFLAGS=''
 ac_ct_AR='ar'
 ac_ct_CC='gcc'
@@ -2816,7 +2816,7 @@ host_vendor='pc'
 htmldir='${docdir}'
 includedir='${prefix}/include'
 infodir='${datarootdir}/info'
-install_sh='${SHELL} /C/Users/wonder/Desktop/src/fenc/install-sh'
+install_sh='${SHELL} /C/Users/wonder/Desktop/src/KSF-CP-ABE/install-sh'
 libdir='${exec_prefix}/lib'
 libexecdir='${exec_prefix}/libexec'
 localedir='${datarootdir}/locale'
