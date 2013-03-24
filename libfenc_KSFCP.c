@@ -658,6 +658,10 @@ encrypt_KSFCP_internal(fenc_context *context, fenc_function_input *input, fenc_p
 	/* Compute CprimeONE = gONE^{sZ}.	*/
 	element_pow_zn(ciphertext_KSFCP.CprimeONE, scheme_context->public_params.gONE, sZ);
 
+	/* for KSF */
+	/* Compute CgammaTWO = ggammaTWO^{sZ}.	*/
+	element_pow_zn(ciphertext_KSFCP.CgammaTWO, scheme_context->public_params.ggammaTWO, sZ);
+
 	/* For every share/attribute, create one component of the secret key.	*/
 	for (i = 0; i < ciphertext_KSFCP.attribute_list.num_attributes; i++) {
 		/* Hash the attribute string to Zr, if it hasn't already been.	*/
@@ -1277,6 +1281,13 @@ libfenc_serialize_ciphertext_KSFCP(fenc_ciphertext_KSFCP *ciphertext, unsigned c
 		buf_ptr = buffer + *serialized_len;
 	}
 
+	/* for KSF */
+	*serialized_len += element_length_in_bytes_compressed(ciphertext->CgammaTWO);	/* CgammaTWO			*/
+	if (buffer != NULL && *serialized_len <= max_len) {
+		element_to_bytes_compressed(buf_ptr, ciphertext->CgammaTWO);
+		buf_ptr = buffer + *serialized_len;
+	}
+
 	/* For every attribute in the ciphertext... */
 	for (i = 0; i < ciphertext->attribute_list.num_attributes; i++) {
 		*serialized_len += element_length_in_bytes(ciphertext->attribute_list.attribute[i].attribute_hash);			/* attribute[i]		*/
@@ -1397,6 +1408,14 @@ libfenc_deserialize_ciphertext_KSFCP(unsigned char *buffer, size_t buf_len, fenc
 	}
 
 	deserialized_len += element_from_bytes_compressed(ciphertext->CprimeONE, buf_ptr);	/* CprimeONE			*/
+	if (deserialized_len > buf_len) {
+		result = FENC_ERROR_BUFFER_TOO_SMALL;
+		goto cleanup;
+	}
+	buf_ptr = buffer + deserialized_len;
+
+	/* for KSF */
+	deserialized_len += element_from_bytes_compressed(ciphertext->CgammaTWO, buf_ptr);	/* CgammaTWO			*/
 	if (deserialized_len > buf_len) {
 		result = FENC_ERROR_BUFFER_TOO_SMALL;
 		goto cleanup;
@@ -1716,6 +1735,9 @@ libfenc_fprint_ciphertext_KSFCP(fenc_ciphertext_KSFCP *ciphertext, FILE* out_fil
 	fprintf(out_file, "policy = %s\n", ciphertext->policy_str);
 	element_fprintf(out_file, "CT = %B\n", ciphertext->CT);
 	element_fprintf(out_file, "CprimeONE = %B\n", ciphertext->CprimeONE);
+
+	/* for KSF */
+	element_fprintf(out_file, "CgammaTWO = %B\n", ciphertext->CgammaTWO);
 
 	/* For every attribute in the ciphertext... */
 	for (i = 0; i < ciphertext->attribute_list.num_attributes; i++) {
