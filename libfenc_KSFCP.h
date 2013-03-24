@@ -105,6 +105,16 @@ typedef struct _fenc_KSF_key_KSFCP {
 } fenc_KSF_key_KSFCP;
 
 /* for KSF */
+typedef struct _fenc_USK_KSFCP {
+	element_t				uZ;
+} fenc_USK_KSFCP;
+
+/* for KSF */
+typedef struct _fenc_UPK_KSFCP {
+	element_t				gu_1TWO;
+} fenc_UPK_KSFCP;
+
+/* for KSF */
 typedef struct _fenc_trapdoor_KSFCP {
 	uint32					num_components;
 	element_t				TgammaTWO;
@@ -502,5 +512,23 @@ FENC_ERROR	secret_params_initialize_KSFCP(fenc_secret_params_KSFCP *params, pair
  */
 
 FENC_ERROR	libfenc_fprint_ciphertext_KSFCP(fenc_ciphertext_KSFCP *ciphertext, FILE* out_file);
+
+
+/* for KSF */
+FENC_ERROR
+libfenc_gen_ukey_KSFCP(fenc_context *context, fenc_USK_KSFCP *usk, fenc_UPK_KSFCP *upk);
+
+FENC_ERROR
+libfenc_import_usk_KSFCP(fenc_context *context, fenc_USK_KSFCP *usk, uint8 *buffer, size_t buf_len);
+
+FENC_ERROR
+libfenc_import_upk_KSFCP(fenc_context *context, fenc_UPK_KSFCP *upk, uint8 *buffer, size_t buf_len);
+
+FENC_ERROR
+libfenc_export_usk_KSFCP(fenc_context *context, fenc_USK_KSFCP *usk, uint8 *buffer, size_t buf_len, size_t *result_len);
+
+FENC_ERROR
+libfenc_export_upk_KSFCP(fenc_context *context, fenc_UPK_KSFCP *upk, uint8 *buffer, size_t buf_len, size_t *result_len);
+
 
 #endif /* ifndef __LIBFENC_KSFCP_H__ */

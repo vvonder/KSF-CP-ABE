@@ -1754,3 +1754,89 @@ libfenc_fprint_ciphertext_KSFCP(fenc_ciphertext_KSFCP *ciphertext, FILE* out_fil
 	/* Return success. */
 	return FENC_ERROR_NONE;
 }
+
+/* for KSF */
+FENC_ERROR
+libfenc_gen_ukey_KSFCP(fenc_context *context, fenc_USK_KSFCP *usk, fenc_UPK_KSFCP *upk)
+{
+	FENC_ERROR					result = FENC_ERROR_UNKNOWN, err_code = FENC_ERROR_NONE;
+	fenc_scheme_context_KSFCP*	scheme_context;
+	element_t					u_1Z; /* (1/u)Z */
+	Bool						elements_initialized = FALSE;
+
+	/* Get the scheme-specific context. */
+	scheme_context = (fenc_scheme_context_KSFCP*)context->scheme_context;
+	if (scheme_context == NULL) {
+		result = FENC_ERROR_INVALID_CONTEXT;
+		goto cleanup;
+	}
+
+	usk=(fenc_USK_KSFCP*)SAFE_MALLOC(sizeof(fenc_USK_KSFCP));
+	if (usk == NULL) {
+		LOG_ERROR("usk_KSFCP_initialize: out of memory");
+		result = FENC_ERROR_OUT_OF_MEMORY;
+		goto cleanup;
+	}
+	memset(usk, 0, sizeof(fenc_USK_KSFCP));
+
+	upk=(fenc_UPK_KSFCP*)SAFE_MALLOC(sizeof(fenc_UPK_KSFCP));
+	if (upk == NULL) {
+		LOG_ERROR("upk_KSFCP_initialize: out of memory");
+		result = FENC_ERROR_OUT_OF_MEMORY;
+		goto cleanup;
+	}
+	memset(upk, 0, sizeof(fenc_UPK_KSFCP));
+
+	element_init_Zr(usk->uZ, scheme_context->global_params->pairing);
+	element_init_Zr(u_1Z, scheme_context->global_params->pairing);
+	elements_initialized = TRUE;
+
+	element_random(usk->uZ);
+	element_invert(u_1Z, usk->uZ);
+	element_pow_zn(upk->gu_1TWO, scheme_context->public_params.gTWO, u_1Z);
+
+	/* Success!		*/
+	result = FENC_ERROR_NONE;
+
+cleanup:
+	/* If there was an error, clean up after ourselves.	*/
+	if (result != FENC_ERROR_NONE) {
+		if (usk != NULL) element_clear(usk->uZ);
+		if (upk != NULL) element_clear(upk->gu_1TWO);
+	}
+
+	/* Wipe out temporary variables.	*/
+	if (elements_initialized == TRUE) {
+		element_clear(u_1Z);
+	}
+
+	return result;
+}
+
+FENC_ERROR
+libfenc_import_usk_KSFCP(fenc_context *context, fenc_USK_KSFCP *usk, uint8 *buffer, size_t buf_len)
+{
+	/* Return success. */
+	return FENC_ERROR_NONE;
+}
+
+FENC_ERROR
+libfenc_import_upk_KSFCP(fenc_context *context, fenc_UPK_KSFCP *upk, uint8 *buffer, size_t buf_len)
+{
+	/* Return success. */
+	return FENC_ERROR_NONE;
+}
+
+FENC_ERROR
+libfenc_export_usk_KSFCP(fenc_context *context, fenc_USK_KSFCP *usk, uint8 *buffer, size_t buf_len, size_t *result_len)
+{
+	/* Return success. */
+	return FENC_ERROR_NONE;
+}
+
+FENC_ERROR
+libfenc_export_upk_KSFCP(fenc_context *context, fenc_UPK_KSFCP *upk, uint8 *buffer, size_t buf_len, size_t *result_len)
+{
+	/* Return success. */
+	return FENC_ERROR_NONE;
+}
