@@ -89,8 +89,6 @@ typedef struct _fenc_index_KSFCP {
 
 typedef struct _fenc_key_KSFCP {
 	uint32					reference_count;
-
-//	fenc_attribute_policy	*policy;
 	fenc_attribute_list		attribute_list;
 	uint32					num_components;
 	element_t				KTWO;
@@ -538,4 +536,11 @@ libfenc_import_ksfkey_KSFCP(fenc_context *context, fenc_KSF_key_KSFCP *ksfkey, u
 
 FENC_ERROR
 libfenc_export_ksfkey_KSFCP(fenc_context *context, fenc_KSF_key_KSFCP *ksfkey, uint8 *buffer, size_t buf_len, size_t *result_len);
+
+FENC_ERROR
+libfenc_gen_trapdoor_KSFCP(fenc_context *context, fenc_key *key, fenc_KSF_key_KSFCP *ksfkey, fenc_USK_KSFCP *usk, char *keyword, fenc_trapdoor_KSFCP *trapdoor);
+
+FENC_ERROR
+fenc_trapdoor_KSFCP_initialize(fenc_trapdoor_KSFCP *trapdoor, fenc_key_KSFCP *key_KSFCP, fenc_global_params_KSFCP *global_params);
+
 #endif /* ifndef __LIBFENC_KSFCP_H__ */

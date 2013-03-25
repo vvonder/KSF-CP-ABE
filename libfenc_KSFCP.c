@@ -1944,6 +1944,10 @@ libfenc_extract_ksfkey_KSFCP(fenc_context *context, fenc_KSF_key_KSFCP *ksfkey, 
 	result = FENC_ERROR_NONE;
 
 cleanup:
+	element_clear(tempTWO);
+	element_clear(temp2TWO);
+	element_clear(temp3TWO);
+	element_clear(galphaTWO);
 	return result;
 }
 
@@ -1997,4 +2001,88 @@ libfenc_export_ksfkey_KSFCP(fenc_context *context, fenc_KSF_key_KSFCP *ksfkey, u
 
 cleanup:
 	return err_code;
+}
+
+FENC_ERROR
+libfenc_gen_trapdoor_KSFCP(fenc_context *context, fenc_key *key, fenc_KSF_key_KSFCP *ksfkey, fenc_USK_KSFCP *usk, char *keyword, fenc_trapdoor_KSFCP *trapdoor)
+{
+	FENC_ERROR					result = FENC_ERROR_UNKNOWN, err_code = FENC_ERROR_NONE;
+	fenc_scheme_context_KSFCP*	scheme_context;
+	element_t					tempTWO, temp2TWO, tempZ;
+	fenc_key_KSFCP				*key_KSFCP = NULL;
+	size_t i;
+
+	/* Get the scheme-specific context. */
+	scheme_context = (fenc_scheme_context_KSFCP*)context->scheme_context;
+	if (scheme_context == NULL) {
+		return FENC_ERROR_INVALID_CONTEXT;
+	}
+
+	if (usk == NULL) {
+		LOG_ERROR("%s: could not obtain USK", __func__);
+		return FENC_ERROR_INVALID_KEY;
+	}
+
+	/* Obtain the KSFCP-specific key data structure and make sure it's correct.	*/
+	if (key->scheme_key == NULL) {
+		LOG_ERROR("%s: could not obtain scheme-specific decryption key", __func__);
+		return FENC_ERROR_INVALID_KEY;
+	}
+	key_KSFCP = (fenc_key_KSFCP*)key->scheme_key;
+
+	err_code = fenc_trapdoor_KSFCP_initialize(trapdoor, key_KSFCP, scheme_context->global_params);
+	if(err_code != FENC_ERROR_NONE) return err_code;
+
+	element_pow_zn(trapdoor->TgammaTWO, ksfkey->KgammaTWO, usk->uZ); /* T_gamma = K_gamma^u */
+	element_pow_zn(trapdoor->LprimeTWO, key_KSFCP->LTWO, usk->uZ); /* L' = L^u */
+	element_pow_zn(trapdoor->TTWO, scheme_context->public_params.hTWO, usk->uZ); /* T = h^u */
+
+	element_init_Zr(tempZ, scheme_context->global_params->pairing);
+	element_init_G2(tempTWO, scheme_context->global_params->pairing);
+	/* Hash the attribute string to Zr, then hash the result into an element of G2 (tempTWO).*/
+	err_code = hash2_attribute_string_to_G1(keyword, &tempTWO, &tempZ); /* tempTWO = H(W) */
+	if(err_code != FENC_ERROR_NONE) return err_code;
+
+	element_init_G2(temp2TWO, scheme_context->global_params->pairing);
+	element_pow_zn(temp2TWO, ksfkey->KbetaTWO, usk->uZ); /* temp2TWO = K_beta^u */
+
+	element_mul(trapdoor->TbetaTWO, tempTWO, temp2TWO); /* T_beta = K_beta^u * H(W) */
+
+	/* Compute K'_x = K_x^u */
+	for (i = 0; i < key_KSFCP->num_components; i++) {
+		element_pow_zn(trapdoor->KXprimeONE[i], key_KSFCP->KXONE[i], usk->uZ);
+	}
+
+	/* Success!		*/
+	result = FENC_ERROR_NONE;
+
+cleanup:
+	element_clear(tempZ);
+	element_clear(tempTWO);
+	element_clear(temp2TWO);
+	return result;
+}
+
+FENC_ERROR
+fenc_trapdoor_KSFCP_initialize(fenc_trapdoor_KSFCP *trapdoor, fenc_key_KSFCP *key_KSFCP, fenc_global_params_KSFCP *global_params)
+{
+	FENC_ERROR					result = FENC_ERROR_UNKNOWN, err_code = FENC_ERROR_NONE;
+	size_t i;
+
+	if(key_KSFCP == NULL) return FENC_ERROR_INVALID_KEY;
+
+	trapdoor->num_components = key_KSFCP->num_components;
+	for (i = 0; i < key_KSFCP->num_components; i++) {
+		element_init_G1(trapdoor->KXprimeONE[i], global_params->pairing);
+	}
+
+	element_init_G2(trapdoor->LprimeTWO, global_params->pairing);
+	element_init_G2(trapdoor->TTWO, global_params->pairing);
+	element_init_G2(trapdoor->TbetaTWO, global_params->pairing);
+	element_init_G2(trapdoor->TgammaTWO, global_params->pairing);
+
+	/* Success!		*/
+	result = FENC_ERROR_NONE;
+cleanup:
+	return result;
 }
