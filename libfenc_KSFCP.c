@@ -1819,6 +1819,8 @@ libfenc_import_usk_KSFCP(fenc_context *context, fenc_USK_KSFCP *usk, uint8 *buff
 		return FENC_ERROR_INVALID_CONTEXT;
 	}
 
+	if(usk == NULL) return FENC_ERROR_INVALID_KEY;
+	element_init_Zr(usk->uZ, scheme_context->global_params->pairing);
 	/* import attributes only -- should be first in buffer */
 	err_code = import_components_from_buffer(buffer, buf_len, &import_len, "%E",
 											 &(usk->uZ));
@@ -1842,6 +1844,8 @@ libfenc_import_upk_KSFCP(fenc_context *context, fenc_UPK_KSFCP *upk, uint8 *buff
 		return FENC_ERROR_INVALID_CONTEXT;
 	}
 
+	if(upk == NULL) return FENC_ERROR_INVALID_KEY;
+	element_init_G2(upk->gu_1TWO, scheme_context->global_params->pairing);
 	/* import attributes only -- should be first in buffer */
 	err_code = import_components_from_buffer(buffer, buf_len, &import_len, "%C",
 											 &(upk->gu_1TWO));
@@ -1941,4 +1945,56 @@ libfenc_extract_ksfkey_KSFCP(fenc_context *context, fenc_KSF_key_KSFCP *ksfkey, 
 
 cleanup:
 	return result;
+}
+
+FENC_ERROR
+libfenc_import_ksfkey_KSFCP(fenc_context *context, fenc_KSF_key_KSFCP *ksfkey, uint8 *buffer, size_t buf_len)
+{
+	FENC_ERROR err_code = FENC_ERROR_NONE;
+	fenc_scheme_context_KSFCP *scheme_context;
+	size_t						import_len;
+	/* Get the scheme-specific context. */
+	scheme_context = (fenc_scheme_context_KSFCP*)context->scheme_context;
+	if (scheme_context == NULL) {
+		return FENC_ERROR_INVALID_CONTEXT;
+	}
+
+	if(ksfkey == NULL) return FENC_ERROR_INVALID_KEY;
+	element_init_G2(ksfkey->KbetaTWO, scheme_context->global_params->pairing);
+	element_init_G2(ksfkey->KgammaTWO, scheme_context->global_params->pairing);
+	/* import attributes only -- should be first in buffer */
+	err_code = import_components_from_buffer(buffer, buf_len, &import_len, "%C%C",
+											&(ksfkey->KbetaTWO),
+											&(ksfkey->KgammaTWO));
+	if (err_code != FENC_ERROR_NONE) {
+		return err_code;
+	}
+
+	/* Return success. */
+	return FENC_ERROR_NONE;
+}
+
+FENC_ERROR
+libfenc_export_ksfkey_KSFCP(fenc_context *context, fenc_KSF_key_KSFCP *ksfkey, uint8 *buffer, size_t buf_len, size_t *result_len)
+{
+	FENC_ERROR err_code = FENC_ERROR_NONE;
+	fenc_scheme_context_KSFCP *scheme_context;
+	unsigned char *buf_ptr = (unsigned char*)buffer;
+
+	/* Get the scheme-specific context. */
+	scheme_context = (fenc_scheme_context_KSFCP*)context->scheme_context;
+	if (scheme_context == NULL) {
+		return FENC_ERROR_INVALID_CONTEXT;
+	}
+
+	err_code = export_components_to_buffer(buf_ptr, buf_len, result_len, "%C%C",
+											ksfkey->KbetaTWO,
+											ksfkey->KgammaTWO);
+
+	if (err_code != FENC_ERROR_NONE) {
+		return err_code;
+	}
+
+cleanup:
+	return err_code;
 }

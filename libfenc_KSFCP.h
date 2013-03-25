@@ -533,4 +533,9 @@ libfenc_export_upk_KSFCP(fenc_context *context, fenc_UPK_KSFCP *upk, uint8 *buff
 FENC_ERROR
 libfenc_extract_ksfkey_KSFCP(fenc_context *context, fenc_KSF_key_KSFCP *ksfkey, fenc_key *key, fenc_UPK_KSFCP *upk);
 
+FENC_ERROR
+libfenc_import_ksfkey_KSFCP(fenc_context *context, fenc_KSF_key_KSFCP *ksfkey, uint8 *buffer, size_t buf_len);
+
+FENC_ERROR
+libfenc_export_ksfkey_KSFCP(fenc_context *context, fenc_KSF_key_KSFCP *ksfkey, uint8 *buffer, size_t buf_len, size_t *result_len);
 #endif /* ifndef __LIBFENC_KSFCP_H__ */
