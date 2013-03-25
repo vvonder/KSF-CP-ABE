@@ -41,6 +41,7 @@ int gen_ukeys(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, char
 	memset(&context, 0, sizeof(fenc_context));
 	memset(&group_params, 0, sizeof(fenc_group_params));
 	memset(&global_params, 0, sizeof(fenc_global_params));
+	memset(&public_params_buf, 0, SIZE);
 	memset(&usk, 0, sizeof(fenc_USK_KSFCP));
 	memset(&upk, 0, sizeof(fenc_UPK_KSFCP));
 
@@ -131,7 +132,7 @@ int gen_ukeys(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, char
 	char *b64_upk_buf = NewBase64Encode(upkBuffer, upk_len, FALSE, &b64_upk_len);
 	fp = fopen(upkfile, "w");
 	if(fp != NULL) {
-		fprintf(fp, "%s", upkBuffer);
+		fprintf(fp, "%s", b64_upk_buf);
 	}
 	fclose(fp);
 

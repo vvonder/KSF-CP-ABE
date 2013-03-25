@@ -1771,7 +1771,6 @@ libfenc_gen_ukey_KSFCP(fenc_context *context, fenc_USK_KSFCP *usk, fenc_UPK_KSFC
 		goto cleanup;
 	}
 
-	usk=(fenc_USK_KSFCP*)SAFE_MALLOC(sizeof(fenc_USK_KSFCP));
 	if (usk == NULL) {
 		LOG_ERROR("usk_KSFCP_initialize: out of memory");
 		result = FENC_ERROR_OUT_OF_MEMORY;
@@ -1779,7 +1778,6 @@ libfenc_gen_ukey_KSFCP(fenc_context *context, fenc_USK_KSFCP *usk, fenc_UPK_KSFC
 	}
 	memset(usk, 0, sizeof(fenc_USK_KSFCP));
 
-	upk=(fenc_UPK_KSFCP*)SAFE_MALLOC(sizeof(fenc_UPK_KSFCP));
 	if (upk == NULL) {
 		LOG_ERROR("upk_KSFCP_initialize: out of memory");
 		result = FENC_ERROR_OUT_OF_MEMORY;
@@ -1789,6 +1787,7 @@ libfenc_gen_ukey_KSFCP(fenc_context *context, fenc_USK_KSFCP *usk, fenc_UPK_KSFC
 
 	element_init_Zr(usk->uZ, scheme_context->global_params->pairing);
 	element_init_Zr(u_1Z, scheme_context->global_params->pairing);
+	element_init_G2(upk->gu_1TWO, scheme_context->global_params->pairing);
 	elements_initialized = TRUE;
 
 	element_random(usk->uZ);
@@ -1842,6 +1841,7 @@ libfenc_export_usk_KSFCP(fenc_context *context, fenc_USK_KSFCP *usk, uint8 *buff
 
 	err_code = export_components_to_buffer(buf_ptr, buf_len, result_len, "%E",
 										   usk->uZ);
+
 	if (err_code != FENC_ERROR_NONE) {
 		return err_code;
 	}
