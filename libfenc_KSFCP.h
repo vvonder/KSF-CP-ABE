@@ -57,6 +57,9 @@ typedef struct _fenc_scheme_context_KSFCP {
 	fenc_global_params_KSFCP	*global_params;
 	fenc_public_params_KSFCP	public_params;
 	fenc_secret_params_KSFCP	secret_params;
+
+	/* for KSF */
+	element_t 					sZ; /* Encrypt secret s */
 } fenc_scheme_context_KSFCP;
 
 /*!
@@ -548,5 +551,8 @@ libfenc_import_trapdoor_KSFCP(fenc_context *context, fenc_trapdoor_KSFCP *trapdo
 
 FENC_ERROR
 libfenc_export_trapdoor_KSFCP(fenc_context *context, fenc_trapdoor_KSFCP *trapdoor, uint8 *buffer, size_t buf_len, size_t *export_result_len);
+
+FENC_ERROR
+build_index_KSFCP(fenc_context *context, char *keywords[], size_t num_keywords, fenc_index_KSFCP *index);
 
 #endif /* ifndef __LIBFENC_KSFCP_H__ */

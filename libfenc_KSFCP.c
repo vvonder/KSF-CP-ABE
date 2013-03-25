@@ -607,6 +607,11 @@ encrypt_KSFCP_internal(fenc_context *context, fenc_function_input *input, fenc_p
 
 	/* Select sZ and compute eggalphaZT = eggalphaT^{sZ}.	*/
 	element_random(sZ);
+
+	/* for KSF: save sZ to context for building index */
+	element_init_same_as(scheme_context->sZ, sZ);
+	element_set(scheme_context->sZ, sZ);
+
 	element_pow_zn(eggalphasT, scheme_context->public_params.eggalphaT, sZ);
 
 	/* Export the policy to a string and draw it back in again.  This clears up some issues in the way		*/
@@ -2184,4 +2189,51 @@ libfenc_export_trapdoor_KSFCP(fenc_context *context, fenc_trapdoor_KSFCP *trapdo
 
 cleanup:
 	return err_code;
+}
+
+FENC_ERROR
+build_index_KSFCP(fenc_context *context, char *keywords[], size_t num_keywords, fenc_index_KSFCP *index)
+{
+	FENC_ERROR					result = FENC_ERROR_UNKNOWN, err_code = FENC_ERROR_NONE;
+	fenc_scheme_context_KSFCP*	scheme_context;
+	element_t					tempT, egHT, tempTWO, tempZ;
+	size_t i;
+
+	/* Get the scheme-specific context. */
+	scheme_context = (fenc_scheme_context_KSFCP*)context->scheme_context;
+	if (scheme_context == NULL) {
+		return FENC_ERROR_INVALID_CONTEXT;
+	}
+
+	if(num_keywords > MAX_INDEX_KEYWORDS) return FENC_ERROR_OUT_OF_MEMORY;
+
+	/* for compute H(W_i) to G2 */
+	element_init_Zr(tempZ, scheme_context->global_params->pairing);
+	element_init_G2(tempTWO, scheme_context->global_params->pairing);
+	element_init_GT(egHT, scheme_context->global_params->pairing);
+	element_init_GT(tempT, scheme_context->global_params->pairing);
+
+	for (i = 0; i < num_keywords; i++) {
+		/* Initialize index */
+		element_init_GT(index->HKeggT[i], scheme_context->global_params->pairing);
+
+		/* Hash the attribute string to Zr, then hash the result into an element of G2 (tempTWO).*/
+		err_code = hash2_attribute_string_to_G1(keywords[i], &tempTWO, &tempZ); /* tempTWO = H(W_i) */
+		if(err_code != FENC_ERROR_NONE) goto cleanup;
+
+		pairing_apply(egHT, scheme_context->public_params.gONE, tempTWO, scheme_context->global_params->pairing); /* egHT = e(g,H(W_i)) */
+		element_mul(tempT, egHT, scheme_context->public_params.eggbetaT); /* tempT = e(g,H(W_i)) * e(g,g)^beta */
+
+		element_pow_zn(index->HKeggT[i], tempT, scheme_context->sZ); /* HK_i = e(g,H(W_i))^s * e(g,g)^{beta s} */
+	}
+
+	/* Success!		*/
+	result = FENC_ERROR_NONE;
+
+cleanup:
+	element_clear(tempT);
+	element_clear(egHT);
+	element_clear(tempTWO);
+	element_clear(tempZ);
+	return result;
 }
