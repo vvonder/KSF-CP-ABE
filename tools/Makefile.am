@@ -17,7 +17,7 @@ AM_LDFLAGS = -lgmp -lpbc -lcrypto
 AM_CPPFLAGS = -I/usr/local/include -I/usr/include -I../
 LDADD = ../libfenc.la
 
-bin_PROGRAMS = abe-setup abe-keygen abe-enc abe-dec policy-test abe_ukeygen
+bin_PROGRAMS = abe-setup abe-keygen abe-enc abe-dec policy-test abe-ukeygen
 
 abe_setup_SOURCES = mgabe-setup.c base64.c base64.h \
 		    common.c common.h

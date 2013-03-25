@@ -42,7 +42,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = abe-setup$(EXEEXT) abe-keygen$(EXEEXT) abe-enc$(EXEEXT) \
-	abe-dec$(EXEEXT) policy-test$(EXEEXT) abe_ukeygen$(EXEEXT)
+	abe-dec$(EXEEXT) policy-test$(EXEEXT) abe-ukeygen$(EXEEXT)
 subdir = tools
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in ChangeLog \
 	INSTALL config.sub depcomp install-sh missing
@@ -534,8 +534,8 @@ abe-keygen$(EXEEXT): $(abe_keygen_OBJECTS) $(abe_keygen_DEPENDENCIES)
 abe-setup$(EXEEXT): $(abe_setup_OBJECTS) $(abe_setup_DEPENDENCIES) 
 	@rm -f abe-setup$(EXEEXT)
 	$(abe_setup_LINK) $(abe_setup_OBJECTS) $(abe_setup_LDADD) $(LIBS)
-abe_ukeygen$(EXEEXT): $(abe_ukeygen_OBJECTS) $(abe_ukeygen_DEPENDENCIES) 
-	@rm -f abe_ukeygen$(EXEEXT)
+abe-ukeygen$(EXEEXT): $(abe_ukeygen_OBJECTS) $(abe_ukeygen_DEPENDENCIES) 
+	@rm -f abe-ukeygen$(EXEEXT)
 	$(abe_ukeygen_LINK) $(abe_ukeygen_OBJECTS) $(abe_ukeygen_LDADD) $(LIBS)
 policy-test$(EXEEXT): $(policy_test_OBJECTS) $(policy_test_DEPENDENCIES) 
 	@rm -f policy-test$(EXEEXT)

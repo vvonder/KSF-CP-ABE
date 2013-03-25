@@ -134,6 +134,15 @@ libfenc_gen_params_KSFCP(fenc_context *context, fenc_global_params *global_param
 	pairing_apply(eggT, scheme_context->public_params.gONE, scheme_context->public_params.gTWO, scheme_context->global_params->pairing);	/* eggT = e(gONE, gTWO) */
 	element_pow_zn(scheme_context->public_params.eggalphaT, eggT, scheme_context->secret_params.alphaZ);									/* eggalphaT = eggT^alpha */
 
+	/* for KSF */
+	element_random(scheme_context->secret_params.betaZ);
+	element_random(scheme_context->secret_params.gammaZ);
+	element_random(scheme_context->public_params.hTWO);
+	/* Compute g^gamma */
+	element_pow_zn(scheme_context->public_params.ggammaTWO, scheme_context->public_params.gTWO, scheme_context->secret_params.gammaZ);
+	/* Compute eggbetaT = e(gONE,gTWO)^(beta) */
+	element_pow_zn(scheme_context->public_params.eggbetaT, eggT, scheme_context->secret_params.betaZ);
+
 	/* Success */
 	result = FENC_ERROR_NONE;
 
@@ -1771,20 +1780,6 @@ libfenc_gen_ukey_KSFCP(fenc_context *context, fenc_USK_KSFCP *usk, fenc_UPK_KSFC
 		goto cleanup;
 	}
 
-	if (usk == NULL) {
-		LOG_ERROR("usk_KSFCP_initialize: out of memory");
-		result = FENC_ERROR_OUT_OF_MEMORY;
-		goto cleanup;
-	}
-	memset(usk, 0, sizeof(fenc_USK_KSFCP));
-
-	if (upk == NULL) {
-		LOG_ERROR("upk_KSFCP_initialize: out of memory");
-		result = FENC_ERROR_OUT_OF_MEMORY;
-		goto cleanup;
-	}
-	memset(upk, 0, sizeof(fenc_UPK_KSFCP));
-
 	element_init_Zr(usk->uZ, scheme_context->global_params->pairing);
 	element_init_Zr(u_1Z, scheme_context->global_params->pairing);
 	element_init_G2(upk->gu_1TWO, scheme_context->global_params->pairing);
@@ -1815,6 +1810,22 @@ cleanup:
 FENC_ERROR
 libfenc_import_usk_KSFCP(fenc_context *context, fenc_USK_KSFCP *usk, uint8 *buffer, size_t buf_len)
 {
+	FENC_ERROR err_code = FENC_ERROR_NONE;
+	fenc_scheme_context_KSFCP *scheme_context;
+	size_t						import_len;
+	/* Get the scheme-specific context. */
+	scheme_context = (fenc_scheme_context_KSFCP*)context->scheme_context;
+	if (scheme_context == NULL) {
+		return FENC_ERROR_INVALID_CONTEXT;
+	}
+
+	/* import attributes only -- should be first in buffer */
+	err_code = import_components_from_buffer(buffer, buf_len, &import_len, "%E",
+											 &(usk->uZ));
+	if (err_code != FENC_ERROR_NONE) {
+		return err_code;
+	}
+
 	/* Return success. */
 	return FENC_ERROR_NONE;
 }
@@ -1822,6 +1833,22 @@ libfenc_import_usk_KSFCP(fenc_context *context, fenc_USK_KSFCP *usk, uint8 *buff
 FENC_ERROR
 libfenc_import_upk_KSFCP(fenc_context *context, fenc_UPK_KSFCP *upk, uint8 *buffer, size_t buf_len)
 {
+	FENC_ERROR err_code = FENC_ERROR_NONE;
+	fenc_scheme_context_KSFCP *scheme_context;
+	size_t						import_len;
+	/* Get the scheme-specific context. */
+	scheme_context = (fenc_scheme_context_KSFCP*)context->scheme_context;
+	if (scheme_context == NULL) {
+		return FENC_ERROR_INVALID_CONTEXT;
+	}
+
+	/* import attributes only -- should be first in buffer */
+	err_code = import_components_from_buffer(buffer, buf_len, &import_len, "%C",
+											 &(upk->gu_1TWO));
+	if (err_code != FENC_ERROR_NONE) {
+		return err_code;
+	}
+
 	/* Return success. */
 	return FENC_ERROR_NONE;
 }
@@ -1871,4 +1898,47 @@ libfenc_export_upk_KSFCP(fenc_context *context, fenc_UPK_KSFCP *upk, uint8 *buff
 
 cleanup:
 	return err_code;
+}
+
+FENC_ERROR
+libfenc_extract_ksfkey_KSFCP(fenc_context *context, fenc_KSF_key_KSFCP *ksfkey, fenc_key *key, fenc_UPK_KSFCP *upk)
+{
+	FENC_ERROR					result = FENC_ERROR_UNKNOWN, err_code = FENC_ERROR_NONE;
+	fenc_scheme_context_KSFCP*	scheme_context;
+	element_t					tempTWO, temp2TWO, temp3TWO, galphaTWO;
+	Bool						elements_initialized = FALSE;
+	fenc_key_KSFCP				*key_KSFCP = NULL;
+
+	/* Get the scheme-specific context. */
+	scheme_context = (fenc_scheme_context_KSFCP*)context->scheme_context;
+	if (scheme_context == NULL) {
+		return FENC_ERROR_INVALID_CONTEXT;
+	}
+	/* Obtain the KSFCP-specific key data structure and make sure it's correct.	*/
+	if (key->scheme_key == NULL) {
+		LOG_ERROR("%s: could not obtain scheme-specific decryption key", __func__);
+		return FENC_ERROR_INVALID_KEY;
+	}
+	key_KSFCP = (fenc_key_KSFCP*)key->scheme_key;
+
+	element_init_G2(tempTWO, scheme_context->global_params->pairing);
+	element_init_G2(temp2TWO, scheme_context->global_params->pairing);
+	element_init_G2(temp3TWO, scheme_context->global_params->pairing);
+	element_init_G2(galphaTWO, scheme_context->global_params->pairing);
+	element_init_G2(ksfkey->KbetaTWO, scheme_context->global_params->pairing);
+	element_init_G2(ksfkey->KgammaTWO, scheme_context->global_params->pairing);
+	elements_initialized = TRUE;
+
+	element_pow_zn(galphaTWO, scheme_context->public_params.gTWO, scheme_context->secret_params.alphaZ); /* g^alpha */
+	element_div(tempTWO, key_KSFCP->KTWO, galphaTWO); /* tempTWO = K / g^alpha */
+	element_pow_zn(temp2TWO, scheme_context->public_params.hTWO, scheme_context->secret_params.gammaZ); /* h^gamma */
+	element_mul(ksfkey->KgammaTWO, tempTWO, temp2TWO); /* K_gamma = K / g^alpha * h^gamma */
+	element_pow_zn(temp3TWO, upk->gu_1TWO, scheme_context->secret_params.betaZ); /* temp3TWO = UPK^beta */
+	element_mul(ksfkey->KbetaTWO, tempTWO, temp3TWO); /* K_gamma = K / g^alpha * UPK^beta */
+
+	/* Success!		*/
+	result = FENC_ERROR_NONE;
+
+cleanup:
+	return result;
 }
