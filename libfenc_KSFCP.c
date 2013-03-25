@@ -2030,7 +2030,9 @@ libfenc_gen_trapdoor_KSFCP(fenc_context *context, fenc_key *key, fenc_KSF_key_KS
 	}
 	key_KSFCP = (fenc_key_KSFCP*)key->scheme_key;
 
-	err_code = fenc_trapdoor_KSFCP_initialize(trapdoor, key_KSFCP, scheme_context->global_params);
+	trapdoor->num_components = key_KSFCP->num_components;
+
+	err_code = fenc_trapdoor_KSFCP_initialize(trapdoor, trapdoor->num_components, scheme_context->global_params);
 	if(err_code != FENC_ERROR_NONE) return err_code;
 
 	element_pow_zn(trapdoor->TgammaTWO, ksfkey->KgammaTWO, usk->uZ); /* T_gamma = K_gamma^u */
@@ -2064,15 +2066,12 @@ cleanup:
 }
 
 FENC_ERROR
-fenc_trapdoor_KSFCP_initialize(fenc_trapdoor_KSFCP *trapdoor, fenc_key_KSFCP *key_KSFCP, fenc_global_params_KSFCP *global_params)
+fenc_trapdoor_KSFCP_initialize(fenc_trapdoor_KSFCP *trapdoor, size_t num_components, fenc_global_params_KSFCP *global_params)
 {
 	FENC_ERROR					result = FENC_ERROR_UNKNOWN, err_code = FENC_ERROR_NONE;
 	size_t i;
 
-	if(key_KSFCP == NULL) return FENC_ERROR_INVALID_KEY;
-
-	trapdoor->num_components = key_KSFCP->num_components;
-	for (i = 0; i < key_KSFCP->num_components; i++) {
+	for (i = 0; i < num_components; i++) {
 		element_init_G1(trapdoor->KXprimeONE[i], global_params->pairing);
 	}
 
@@ -2085,4 +2084,104 @@ fenc_trapdoor_KSFCP_initialize(fenc_trapdoor_KSFCP *trapdoor, fenc_key_KSFCP *ke
 	result = FENC_ERROR_NONE;
 cleanup:
 	return result;
+}
+
+FENC_ERROR
+libfenc_import_trapdoor_KSFCP(fenc_context *context, fenc_trapdoor_KSFCP *trapdoor, uint8 *buffer, size_t buf_len)
+{
+	FENC_ERROR 					err_code = FENC_ERROR_NONE;
+	fenc_scheme_context_KSFCP 	*scheme_context;
+	size_t						result_len, num_components=0 ,i;
+	uint8 						*buf_ptr = buffer;
+	/* Get the scheme-specific context. */
+	scheme_context = (fenc_scheme_context_KSFCP*)context->scheme_context;
+	if (scheme_context == NULL) {
+		return FENC_ERROR_INVALID_CONTEXT;
+	}
+
+	err_code = import_components_from_buffer(buffer, buf_len, &result_len, "%d",
+											&(num_components));
+	if(err_code != FENC_ERROR_NONE || num_components==0) return err_code;
+	trapdoor->num_components = num_components;
+
+	err_code = fenc_trapdoor_KSFCP_initialize(trapdoor, trapdoor->num_components, scheme_context->global_params);
+	if(err_code != FENC_ERROR_NONE) return err_code;
+
+	buf_ptr = buffer + result_len;
+	buf_len -= result_len;
+	/* import attributes only -- should be first in buffer */
+	err_code = import_components_from_buffer(buf_ptr, buf_len, &result_len, "%C%C%C%C",
+											&(trapdoor->LprimeTWO),
+											&(trapdoor->TTWO),
+											&(trapdoor->TbetaTWO),
+											&(trapdoor->TgammaTWO));
+
+	if (err_code != FENC_ERROR_NONE) {
+			return err_code;
+	}
+
+	buf_ptr += result_len;
+	buf_len -= result_len;
+	for (i = 0; i < num_components; i++) {
+		/* Import the group element.	*/
+		err_code = import_components_from_buffer(buf_ptr, buf_len, &result_len, "%C",
+											   &(trapdoor->KXprimeONE[i]));
+		if (err_code != FENC_ERROR_NONE) {
+			return err_code;
+		}
+
+		if (buffer != NULL) {	buf_ptr += result_len;	}
+		buf_len -= result_len;
+	}
+
+	/* Return success. */
+	return FENC_ERROR_NONE;
+}
+
+FENC_ERROR
+libfenc_export_trapdoor_KSFCP(fenc_context *context, fenc_trapdoor_KSFCP *trapdoor, uint8 *buffer, size_t buf_len, size_t *export_result_len)
+{
+	FENC_ERROR err_code = FENC_ERROR_NONE;
+	fenc_scheme_context_KSFCP *scheme_context;
+	uint8 *buf_ptr = buffer;
+	size_t i, result_len=0;
+
+	/* Get the scheme-specific context. */
+	scheme_context = (fenc_scheme_context_KSFCP*)context->scheme_context;
+	if (scheme_context == NULL) {
+		return FENC_ERROR_INVALID_CONTEXT;
+	}
+
+	*export_result_len = 0;
+
+	err_code = export_components_to_buffer(buf_ptr, buf_len, &result_len, "%d%C%C%C%C",
+											trapdoor->num_components,
+											trapdoor->LprimeTWO,
+											trapdoor->TTWO,
+											trapdoor->TbetaTWO,
+											trapdoor->TgammaTWO);
+
+	if (err_code != FENC_ERROR_NONE) {
+		return err_code;
+	}
+
+	*export_result_len += result_len;
+	if (buffer != NULL) buf_ptr += result_len;
+	buf_len -= result_len;
+
+	for (i = 0; i < trapdoor->num_components; i++) {
+		/* Export the group element.	*/
+		err_code = export_components_to_buffer(buf_ptr, buf_len, &result_len, "%C",
+											   trapdoor->KXprimeONE[i]);
+		if (err_code != FENC_ERROR_NONE) {
+			return err_code;
+		}
+
+		*export_result_len += result_len;
+		if (buffer != NULL) {	buf_ptr = buffer + *export_result_len;	}
+		buf_len -= result_len;
+	}
+
+cleanup:
+	return err_code;
 }

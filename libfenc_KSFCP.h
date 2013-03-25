@@ -541,6 +541,12 @@ FENC_ERROR
 libfenc_gen_trapdoor_KSFCP(fenc_context *context, fenc_key *key, fenc_KSF_key_KSFCP *ksfkey, fenc_USK_KSFCP *usk, char *keyword, fenc_trapdoor_KSFCP *trapdoor);
 
 FENC_ERROR
-fenc_trapdoor_KSFCP_initialize(fenc_trapdoor_KSFCP *trapdoor, fenc_key_KSFCP *key_KSFCP, fenc_global_params_KSFCP *global_params);
+fenc_trapdoor_KSFCP_initialize(fenc_trapdoor_KSFCP *trapdoor, size_t num_components, fenc_global_params_KSFCP *global_params);
+
+FENC_ERROR
+libfenc_import_trapdoor_KSFCP(fenc_context *context, fenc_trapdoor_KSFCP *trapdoor, uint8 *buffer, size_t buf_len);
+
+FENC_ERROR
+libfenc_export_trapdoor_KSFCP(fenc_context *context, fenc_trapdoor_KSFCP *trapdoor, uint8 *buffer, size_t buf_len, size_t *export_result_len);
 
 #endif /* ifndef __LIBFENC_KSFCP_H__ */
