@@ -43,7 +43,7 @@ build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = abe-setup$(EXEEXT) abe-keygen$(EXEEXT) abe-enc$(EXEEXT) \
 	abe-dec$(EXEEXT) policy-test$(EXEEXT) abe-ukeygen$(EXEEXT) \
-	ksf-keygen$(EXEEXT)
+	ksf-keygen$(EXEEXT) ksf-trapdoor$(EXEEXT)
 subdir = tools
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in ChangeLog \
 	INSTALL config.sub depcomp install-sh missing
@@ -118,6 +118,13 @@ libksf_keygen_la_OBJECTS = $(am_libksf_keygen_la_OBJECTS)
 libksf_keygen_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(libksf_keygen_la_LDFLAGS) $(LDFLAGS) -o $@
+libksf_trapdoor_la_DEPENDENCIES = ../libfenc.la
+am_libksf_trapdoor_la_OBJECTS = ksfcpabe-trapdoor.lo base64.lo \
+	common.lo
+libksf_trapdoor_la_OBJECTS = $(am_libksf_trapdoor_la_OBJECTS)
+libksf_trapdoor_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(libksf_trapdoor_la_LDFLAGS) $(LDFLAGS) -o $@
 libpolicy_test_la_DEPENDENCIES = ../libfenc.la
 am_libpolicy_test_la_OBJECTS = policy-tool.lo common.lo
 libpolicy_test_la_OBJECTS = $(am_libpolicy_test_la_OBJECTS)
@@ -173,6 +180,14 @@ ksf_keygen_DEPENDENCIES = ../libfenc.la
 ksf_keygen_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(ksf_keygen_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_ksf_trapdoor_OBJECTS = ksf_trapdoor-ksfcpabe-trapdoor.$(OBJEXT) \
+	ksf_trapdoor-base64.$(OBJEXT) ksf_trapdoor-common.$(OBJEXT)
+ksf_trapdoor_OBJECTS = $(am_ksf_trapdoor_OBJECTS)
+ksf_trapdoor_LDADD = $(LDADD)
+ksf_trapdoor_DEPENDENCIES = ../libfenc.la
+ksf_trapdoor_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(ksf_trapdoor_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 am_policy_test_OBJECTS = policy_test-policy-tool.$(OBJEXT) \
 	policy_test-common.$(OBJEXT)
 policy_test_OBJECTS = $(am_policy_test_OBJECTS)
@@ -197,16 +212,18 @@ LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 SOURCES = $(libabe_dec_la_SOURCES) $(libabe_enc_la_SOURCES) \
 	$(libabe_keygen_la_SOURCES) $(libabe_setup_la_SOURCES) \
 	$(libabe_ukeygen_la_SOURCES) $(libksf_keygen_la_SOURCES) \
-	$(libpolicy_test_la_SOURCES) $(abe_dec_SOURCES) \
-	$(abe_enc_SOURCES) $(abe_keygen_SOURCES) $(abe_setup_SOURCES) \
-	$(abe_ukeygen_SOURCES) $(ksf_keygen_SOURCES) \
+	$(libksf_trapdoor_la_SOURCES) $(libpolicy_test_la_SOURCES) \
+	$(abe_dec_SOURCES) $(abe_enc_SOURCES) $(abe_keygen_SOURCES) \
+	$(abe_setup_SOURCES) $(abe_ukeygen_SOURCES) \
+	$(ksf_keygen_SOURCES) $(ksf_trapdoor_SOURCES) \
 	$(policy_test_SOURCES)
 DIST_SOURCES = $(libabe_dec_la_SOURCES) $(libabe_enc_la_SOURCES) \
 	$(libabe_keygen_la_SOURCES) $(libabe_setup_la_SOURCES) \
 	$(libabe_ukeygen_la_SOURCES) $(libksf_keygen_la_SOURCES) \
-	$(libpolicy_test_la_SOURCES) $(abe_dec_SOURCES) \
-	$(abe_enc_SOURCES) $(abe_keygen_SOURCES) $(abe_setup_SOURCES) \
-	$(abe_ukeygen_SOURCES) $(ksf_keygen_SOURCES) \
+	$(libksf_trapdoor_la_SOURCES) $(libpolicy_test_la_SOURCES) \
+	$(abe_dec_SOURCES) $(abe_enc_SOURCES) $(abe_keygen_SOURCES) \
+	$(abe_setup_SOURCES) $(abe_ukeygen_SOURCES) \
+	$(ksf_keygen_SOURCES) $(ksf_trapdoor_SOURCES) \
 	$(policy_test_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
@@ -393,6 +410,7 @@ abe_dec_SOURCES = mgabe-dec.c base64.c common.c
 policy_test_SOURCES = policy-tool.c common.c
 abe_ukeygen_SOURCES = ksfcpabe-ukeygen.c base64.c common.c
 ksf_keygen_SOURCES = ksfcpabe-ksfkeygen.c base64.c common.c
+ksf_trapdoor_SOURCES = ksfcpabe-trapdoor.c base64.c common.c
 abe_setup_CFLAGS = $(AM_CFLAGS)
 abe_keygen_CFLAGS = $(AM_CFLAGS)
 abe_enc_CFLAGS = $(AM_CFLAGS)
@@ -400,7 +418,8 @@ abe_dec_CFLAGS = $(AM_CFLAGS)
 policy_test_CFLAGS = $(AM_CFLAGS)
 abe_ukeygen_CFLAGS = $(AM_CFLAGS)
 ksf_keygen_CFLAGS = $(AM_CFLAGS)
-lib_LTLIBRARIES = libabe-setup.la libabe-keygen.la libabe-enc.la libabe-dec.la libpolicy-test.la libabe-ukeygen.la libksf-keygen.la
+ksf_trapdoor_CFLAGS = $(AM_CFLAGS)
+lib_LTLIBRARIES = libabe-setup.la libabe-keygen.la libabe-enc.la libabe-dec.la libpolicy-test.la libabe-ukeygen.la libksf-keygen.la libksf-trapdoor.la
 libabe_setup_la_SOURCES = mgabe-setup.c base64.c base64.h \
 		    common.c common.h
 
@@ -410,6 +429,7 @@ libabe_dec_la_SOURCES = mgabe-dec.c base64.c common.c
 libpolicy_test_la_SOURCES = policy-tool.c common.c
 libabe_ukeygen_la_SOURCES = ksfcpabe-ukeygen.c base64.c common.c
 libksf_keygen_la_SOURCES = ksfcpabe-ksfkeygen.c base64.c common.c
+libksf_trapdoor_la_SOURCES = ksfcpabe-trapdoor.c base64.c common.c
 libabe_setup_la_LIBADD = ../libfenc.la
 libabe_keygen_la_LIBADD = ../libfenc.la
 libabe_enc_la_LIBADD = ../libfenc.la
@@ -417,6 +437,7 @@ libabe_dec_la_LIBADD = ../libfenc.la
 libpolicy_test_la_LIBADD = ../libfenc.la
 libabe_ukeygen_la_LIBADD = ../libfenc.la
 libksf_keygen_la_LIBADD = ../libfenc.la
+libksf_trapdoor_la_LIBADD = ../libfenc.la
 COMMON_LDFLAGS = -no-undefined
 libabe_setup_la_LDFLAGS = $(COMMON_LDFLAGS)
 libabe_keygen_la_LDFLAGS = $(COMMON_LDFLAGS)
@@ -425,6 +446,7 @@ libabe_dec_la_LDFLAGS = $(COMMON_LDFLAGS)
 libpolicy_test_la_LDFLAGS = $(COMMON_LDFLAGS)
 libabe_ukeygen_la_LDFLAGS = $(COMMON_LDFLAGS)
 libksf_keygen_la_LDFLAGS = $(COMMON_LDFLAGS)
+libksf_trapdoor_la_LDFLAGS = $(COMMON_LDFLAGS)
 all: all-recursive
 
 .SUFFIXES:
@@ -502,6 +524,8 @@ libabe-ukeygen.la: $(libabe_ukeygen_la_OBJECTS) $(libabe_ukeygen_la_DEPENDENCIES
 	$(libabe_ukeygen_la_LINK) -rpath $(libdir) $(libabe_ukeygen_la_OBJECTS) $(libabe_ukeygen_la_LIBADD) $(LIBS)
 libksf-keygen.la: $(libksf_keygen_la_OBJECTS) $(libksf_keygen_la_DEPENDENCIES) 
 	$(libksf_keygen_la_LINK) -rpath $(libdir) $(libksf_keygen_la_OBJECTS) $(libksf_keygen_la_LIBADD) $(LIBS)
+libksf-trapdoor.la: $(libksf_trapdoor_la_OBJECTS) $(libksf_trapdoor_la_DEPENDENCIES) 
+	$(libksf_trapdoor_la_LINK) -rpath $(libdir) $(libksf_trapdoor_la_OBJECTS) $(libksf_trapdoor_la_LIBADD) $(LIBS)
 libpolicy-test.la: $(libpolicy_test_la_OBJECTS) $(libpolicy_test_la_DEPENDENCIES) 
 	$(libpolicy_test_la_LINK) -rpath $(libdir) $(libpolicy_test_la_OBJECTS) $(libpolicy_test_la_LIBADD) $(LIBS)
 install-binPROGRAMS: $(bin_PROGRAMS)
@@ -565,6 +589,9 @@ abe-ukeygen$(EXEEXT): $(abe_ukeygen_OBJECTS) $(abe_ukeygen_DEPENDENCIES)
 ksf-keygen$(EXEEXT): $(ksf_keygen_OBJECTS) $(ksf_keygen_DEPENDENCIES) 
 	@rm -f ksf-keygen$(EXEEXT)
 	$(ksf_keygen_LINK) $(ksf_keygen_OBJECTS) $(ksf_keygen_LDADD) $(LIBS)
+ksf-trapdoor$(EXEEXT): $(ksf_trapdoor_OBJECTS) $(ksf_trapdoor_DEPENDENCIES) 
+	@rm -f ksf-trapdoor$(EXEEXT)
+	$(ksf_trapdoor_LINK) $(ksf_trapdoor_OBJECTS) $(ksf_trapdoor_LDADD) $(LIBS)
 policy-test$(EXEEXT): $(policy_test_OBJECTS) $(policy_test_DEPENDENCIES) 
 	@rm -f policy-test$(EXEEXT)
 	$(policy_test_LINK) $(policy_test_OBJECTS) $(policy_test_LDADD) $(LIBS)
@@ -595,7 +622,11 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ksf_keygen-base64.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ksf_keygen-common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ksf_keygen-ksfcpabe-ksfkeygen.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ksf_trapdoor-base64.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ksf_trapdoor-common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ksf_trapdoor-ksfcpabe-trapdoor.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ksfcpabe-ksfkeygen.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ksfcpabe-trapdoor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ksfcpabe-ukeygen.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mgabe-dec.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mgabe-enc.Plo@am__quote@
@@ -877,6 +908,48 @@ ksf_keygen-common.obj: common.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='common.c' object='ksf_keygen-common.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ksf_keygen_CFLAGS) $(CFLAGS) -c -o ksf_keygen-common.obj `if test -f 'common.c'; then $(CYGPATH_W) 'common.c'; else $(CYGPATH_W) '$(srcdir)/common.c'; fi`
+
+ksf_trapdoor-ksfcpabe-trapdoor.o: ksfcpabe-trapdoor.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ksf_trapdoor_CFLAGS) $(CFLAGS) -MT ksf_trapdoor-ksfcpabe-trapdoor.o -MD -MP -MF $(DEPDIR)/ksf_trapdoor-ksfcpabe-trapdoor.Tpo -c -o ksf_trapdoor-ksfcpabe-trapdoor.o `test -f 'ksfcpabe-trapdoor.c' || echo '$(srcdir)/'`ksfcpabe-trapdoor.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/ksf_trapdoor-ksfcpabe-trapdoor.Tpo $(DEPDIR)/ksf_trapdoor-ksfcpabe-trapdoor.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ksfcpabe-trapdoor.c' object='ksf_trapdoor-ksfcpabe-trapdoor.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ksf_trapdoor_CFLAGS) $(CFLAGS) -c -o ksf_trapdoor-ksfcpabe-trapdoor.o `test -f 'ksfcpabe-trapdoor.c' || echo '$(srcdir)/'`ksfcpabe-trapdoor.c
+
+ksf_trapdoor-ksfcpabe-trapdoor.obj: ksfcpabe-trapdoor.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ksf_trapdoor_CFLAGS) $(CFLAGS) -MT ksf_trapdoor-ksfcpabe-trapdoor.obj -MD -MP -MF $(DEPDIR)/ksf_trapdoor-ksfcpabe-trapdoor.Tpo -c -o ksf_trapdoor-ksfcpabe-trapdoor.obj `if test -f 'ksfcpabe-trapdoor.c'; then $(CYGPATH_W) 'ksfcpabe-trapdoor.c'; else $(CYGPATH_W) '$(srcdir)/ksfcpabe-trapdoor.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/ksf_trapdoor-ksfcpabe-trapdoor.Tpo $(DEPDIR)/ksf_trapdoor-ksfcpabe-trapdoor.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ksfcpabe-trapdoor.c' object='ksf_trapdoor-ksfcpabe-trapdoor.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ksf_trapdoor_CFLAGS) $(CFLAGS) -c -o ksf_trapdoor-ksfcpabe-trapdoor.obj `if test -f 'ksfcpabe-trapdoor.c'; then $(CYGPATH_W) 'ksfcpabe-trapdoor.c'; else $(CYGPATH_W) '$(srcdir)/ksfcpabe-trapdoor.c'; fi`
+
+ksf_trapdoor-base64.o: base64.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ksf_trapdoor_CFLAGS) $(CFLAGS) -MT ksf_trapdoor-base64.o -MD -MP -MF $(DEPDIR)/ksf_trapdoor-base64.Tpo -c -o ksf_trapdoor-base64.o `test -f 'base64.c' || echo '$(srcdir)/'`base64.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/ksf_trapdoor-base64.Tpo $(DEPDIR)/ksf_trapdoor-base64.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='base64.c' object='ksf_trapdoor-base64.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ksf_trapdoor_CFLAGS) $(CFLAGS) -c -o ksf_trapdoor-base64.o `test -f 'base64.c' || echo '$(srcdir)/'`base64.c
+
+ksf_trapdoor-base64.obj: base64.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ksf_trapdoor_CFLAGS) $(CFLAGS) -MT ksf_trapdoor-base64.obj -MD -MP -MF $(DEPDIR)/ksf_trapdoor-base64.Tpo -c -o ksf_trapdoor-base64.obj `if test -f 'base64.c'; then $(CYGPATH_W) 'base64.c'; else $(CYGPATH_W) '$(srcdir)/base64.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/ksf_trapdoor-base64.Tpo $(DEPDIR)/ksf_trapdoor-base64.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='base64.c' object='ksf_trapdoor-base64.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ksf_trapdoor_CFLAGS) $(CFLAGS) -c -o ksf_trapdoor-base64.obj `if test -f 'base64.c'; then $(CYGPATH_W) 'base64.c'; else $(CYGPATH_W) '$(srcdir)/base64.c'; fi`
+
+ksf_trapdoor-common.o: common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ksf_trapdoor_CFLAGS) $(CFLAGS) -MT ksf_trapdoor-common.o -MD -MP -MF $(DEPDIR)/ksf_trapdoor-common.Tpo -c -o ksf_trapdoor-common.o `test -f 'common.c' || echo '$(srcdir)/'`common.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/ksf_trapdoor-common.Tpo $(DEPDIR)/ksf_trapdoor-common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='common.c' object='ksf_trapdoor-common.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ksf_trapdoor_CFLAGS) $(CFLAGS) -c -o ksf_trapdoor-common.o `test -f 'common.c' || echo '$(srcdir)/'`common.c
+
+ksf_trapdoor-common.obj: common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ksf_trapdoor_CFLAGS) $(CFLAGS) -MT ksf_trapdoor-common.obj -MD -MP -MF $(DEPDIR)/ksf_trapdoor-common.Tpo -c -o ksf_trapdoor-common.obj `if test -f 'common.c'; then $(CYGPATH_W) 'common.c'; else $(CYGPATH_W) '$(srcdir)/common.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/ksf_trapdoor-common.Tpo $(DEPDIR)/ksf_trapdoor-common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='common.c' object='ksf_trapdoor-common.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ksf_trapdoor_CFLAGS) $(CFLAGS) -c -o ksf_trapdoor-common.obj `if test -f 'common.c'; then $(CYGPATH_W) 'common.c'; else $(CYGPATH_W) '$(srcdir)/common.c'; fi`
 
 policy_test-policy-tool.o: policy-tool.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(policy_test_CFLAGS) $(CFLAGS) -MT policy_test-policy-tool.o -MD -MP -MF $(DEPDIR)/policy_test-policy-tool.Tpo -c -o policy_test-policy-tool.o `test -f 'policy-tool.c' || echo '$(srcdir)/'`policy-tool.c
