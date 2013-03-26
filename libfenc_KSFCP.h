@@ -22,7 +22,7 @@ typedef struct _fenc_public_params_KSFCP {
 	/* for KSF */
 	element_t eggbetaT;
 	element_t hTWO;
-	element_t ggammaTWO;
+	element_t ggammaONE;
 
 } fenc_public_params_KSFCP;
 
@@ -78,7 +78,7 @@ typedef struct _fenc_ciphertext_KSFCP {
 	element_t				DTWO[MAX_CIPHERTEXT_ATTRIBUTES];
 
 	/* for KSF */
-	element_t				CgammaTWO;
+	element_t				CgammaONE;
 } fenc_ciphertext_KSFCP;
 
 /* for KSF */
@@ -571,5 +571,9 @@ libfenc_build_index_KSFCP(fenc_context *context, char keywords[][KEYWORD_SIZE], 
 
 FENC_ERROR
 libfenc_export_index_KSFCP(fenc_context *context, fenc_index_KSFCP *index, fenc_index_HK_KSFCP *hk_buffer);
+
+/* Search decryptable CT */
+FENC_ERROR
+libfenc_match_KSFCP(fenc_context *context, fenc_ciphertext *ciphertext, fenc_trapdoor_KSFCP *trapdoor, fenc_Q_KSFCP *Q);
 
 #endif /* ifndef __LIBFENC_KSFCP_H__ */

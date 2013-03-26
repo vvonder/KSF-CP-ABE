@@ -139,7 +139,7 @@ libfenc_gen_params_KSFCP(fenc_context *context, fenc_global_params *global_param
 	element_random(scheme_context->secret_params.gammaZ);
 	element_random(scheme_context->public_params.hTWO);
 	/* Compute g^gamma */
-	element_pow_zn(scheme_context->public_params.ggammaTWO, scheme_context->public_params.gTWO, scheme_context->secret_params.gammaZ);
+	element_pow_zn(scheme_context->public_params.ggammaONE, scheme_context->public_params.gONE, scheme_context->secret_params.gammaZ);
 	/* Compute eggbetaT = e(gONE,gTWO)^(beta) */
 	element_pow_zn(scheme_context->public_params.eggbetaT, eggT, scheme_context->secret_params.betaZ);
 
@@ -673,8 +673,8 @@ encrypt_KSFCP_internal(fenc_context *context, fenc_function_input *input, fenc_p
 	element_pow_zn(ciphertext_KSFCP.CprimeONE, scheme_context->public_params.gONE, sZ);
 
 	/* for KSF */
-	/* Compute CgammaTWO = ggammaTWO^{sZ}.	*/
-	element_pow_zn(ciphertext_KSFCP.CgammaTWO, scheme_context->public_params.ggammaTWO, sZ);
+	/* Compute CgammaONE = ggammaONE^{sZ}.	*/
+	element_pow_zn(ciphertext_KSFCP.CgammaONE, scheme_context->public_params.ggammaONE, sZ);
 
 	/* For every share/attribute, create one component of the secret key.	*/
 	for (i = 0; i < ciphertext_KSFCP.attribute_list.num_attributes; i++) {
@@ -755,7 +755,7 @@ FENC_ERROR	libfenc_export_public_params_KSFCP(fenc_context *context, uint8 *buff
 									   &(scheme_context->public_params.gaTWO),
 									   &(scheme_context->public_params.eggalphaT),
 										/* for KSF */
-										&(scheme_context->public_params.ggammaTWO),
+										&(scheme_context->public_params.ggammaONE),
 										&(scheme_context->public_params.hTWO),
 										&(scheme_context->public_params.eggbetaT)
 											);
@@ -831,7 +831,7 @@ libfenc_import_public_params_KSFCP(fenc_context *context, uint8 *buffer, size_t 
 										 &(scheme_context->public_params.gaTWO),
 										 &(scheme_context->public_params.eggalphaT),
 										/* for KSF */
-										&(scheme_context->public_params.ggammaTWO),
+										&(scheme_context->public_params.ggammaONE),
 										&(scheme_context->public_params.hTWO),
 										&(scheme_context->public_params.eggbetaT)
 										);
@@ -1296,9 +1296,9 @@ libfenc_serialize_ciphertext_KSFCP(fenc_ciphertext_KSFCP *ciphertext, unsigned c
 	}
 
 	/* for KSF */
-	*serialized_len += element_length_in_bytes_compressed(ciphertext->CgammaTWO);	/* CgammaTWO			*/
+	*serialized_len += element_length_in_bytes_compressed(ciphertext->CgammaONE);	/* CgammaONE			*/
 	if (buffer != NULL && *serialized_len <= max_len) {
-		element_to_bytes_compressed(buf_ptr, ciphertext->CgammaTWO);
+		element_to_bytes_compressed(buf_ptr, ciphertext->CgammaONE);
 		buf_ptr = buffer + *serialized_len;
 	}
 
@@ -1429,7 +1429,7 @@ libfenc_deserialize_ciphertext_KSFCP(unsigned char *buffer, size_t buf_len, fenc
 	buf_ptr = buffer + deserialized_len;
 
 	/* for KSF */
-	deserialized_len += element_from_bytes_compressed(ciphertext->CgammaTWO, buf_ptr);	/* CgammaTWO			*/
+	deserialized_len += element_from_bytes_compressed(ciphertext->CgammaONE, buf_ptr);	/* CgammaONE			*/
 	if (deserialized_len > buf_len) {
 		result = FENC_ERROR_BUFFER_TOO_SMALL;
 		goto cleanup;
@@ -1512,7 +1512,7 @@ fenc_ciphertext_KSFCP_initialize(fenc_ciphertext_KSFCP *ciphertext, fenc_attribu
 	element_init_G1(ciphertext->CprimeONE, scheme_context->global_params->pairing);
 
 	/* for KSF */
-	element_init_G2(ciphertext->CgammaTWO, scheme_context->global_params->pairing);
+	element_init_G1(ciphertext->CgammaONE, scheme_context->global_params->pairing);
 
 	for (i = 0; i < attribute_list->num_attributes; i++) {
 		element_init_G1(ciphertext->CONE[i], scheme_context->global_params->pairing);
@@ -1546,7 +1546,7 @@ fenc_ciphertext_KSFCP_clear(fenc_ciphertext_KSFCP *ciphertext)
 	element_clear(ciphertext->CprimeONE);
 
 	/* for KSF */
-	element_clear(ciphertext->CgammaTWO);
+	element_clear(ciphertext->CgammaONE);
 
 	for (i = 0; i < ciphertext->attribute_list.num_attributes; i++) {
 		element_clear(ciphertext->CONE[i]);
@@ -1701,7 +1701,7 @@ public_params_initialize_KSFCP(fenc_public_params_KSFCP *params, pairing_t pairi
 	element_init_GT(params->eggalphaT, pairing);
 
 	/* for KSF */
-	element_init_G2(params->ggammaTWO, pairing);
+	element_init_G1(params->ggammaONE, pairing);
 	element_init_G2(params->hTWO, pairing);
 	element_init_GT(params->eggbetaT, pairing);
 
@@ -1751,7 +1751,7 @@ libfenc_fprint_ciphertext_KSFCP(fenc_ciphertext_KSFCP *ciphertext, FILE* out_fil
 	element_fprintf(out_file, "CprimeONE = %B\n", ciphertext->CprimeONE);
 
 	/* for KSF */
-	element_fprintf(out_file, "CgammaTWO = %B\n", ciphertext->CgammaTWO);
+	element_fprintf(out_file, "CgammaONE = %B\n", ciphertext->CgammaONE);
 
 	/* For every attribute in the ciphertext... */
 	for (i = 0; i < ciphertext->attribute_list.num_attributes; i++) {
@@ -2326,4 +2326,185 @@ cleanup:
 	return result;
 }
 
+/* Search decryptable CT */
+FENC_ERROR
+libfenc_match_KSFCP(fenc_context *context, fenc_ciphertext *ciphertext, fenc_trapdoor_KSFCP *trapdoor, fenc_Q_KSFCP *Q)
+{
+	FENC_ERROR						result = FENC_ERROR_UNKNOWN, err_code;
+	fenc_ciphertext_KSFCP			ciphertext_KSFCP;
+	fenc_scheme_context_KSFCP		*scheme_context = NULL;
+	fenc_attribute_policy			policy;
+	fenc_lsss_coefficient_list		coefficient_list;
+	element_t						tempGT, temp2GT, tempONE, temp2ONE, temp3ONE, tempZ, temp2Z, prodONE;
+	element_t						temp3GT, temp4GT, prodT, finalT;
+	uint32							i;
+	int32							index_ciph, index_key;
+	Bool							elements_initialized = FALSE, coefficients_initialized = FALSE;
 
+	// char							test_str[MAX_POLICY_STR];
+
+	/* Get the scheme-specific context. */
+	scheme_context = (fenc_scheme_context_KSFCP*)context->scheme_context;
+	if (scheme_context == NULL) {
+		return FENC_ERROR_INVALID_CONTEXT;
+	}
+
+	err_code = attribute_list_compute_hashes(&(trapdoor->attribute_list), scheme_context->global_params->pairing);
+
+	/* Deserialize the ciphertext.	*/
+	err_code = libfenc_deserialize_ciphertext_KSFCP(ciphertext->data, ciphertext->data_len, &ciphertext_KSFCP, scheme_context);
+	if (err_code != FENC_ERROR_NONE) {
+		LOG_ERROR("%s: unable to deserialize ciphertext", __func__);
+		result = err_code;
+		goto cleanup;
+	}
+
+#ifdef FENC_DEBUG
+//	libfenc_fprint_ciphertext_KSFCP(&ciphertext_KSFCP, stdout);
+#endif
+	/* Now deserialize the policy string into a data structure and make sure all attributes are hashed.	*/
+	err_code = fenc_policy_from_string(&policy, ciphertext_KSFCP.policy_str);
+	if(err_code != FENC_ERROR_NONE) {
+		LOG_ERROR("%s: invalid fenc policy string", __func__);
+		result = err_code;
+		goto cleanup;
+	}
+
+#ifdef FENC_DEBUG
+//	strcpy(test_str, "");
+//	fenc_attribute_policy_to_string(policy.root, test_str, MAX_POLICY_STR);
+//	printf("PARSED ATTRIBUTE STRING: %s\n", test_str);
+#endif
+	err_code = attribute_tree_compute_hashes(policy.root, scheme_context->global_params->pairing);
+
+	//libfenc_fprint_ciphertext_KSFCP(&ciphertext_KSFCP, stdout);
+
+	/* Use the LSSS-associated procedure to recover the coefficients.  This gives us a list of coefficients
+	 * that should match up in a 1-to-1 fashion with the components of the decryption key.
+	 * First, initialize a coefficients list:													*/
+	err_code = LSSS_allocate_coefficient_list(&coefficient_list, ciphertext_KSFCP.attribute_list.num_attributes, scheme_context->global_params->pairing);
+	if (err_code != FENC_ERROR_NONE) {
+		LOG_ERROR("%s: could not allocate coefficients", __func__);
+		result = err_code;
+		goto cleanup;
+	}
+	coefficients_initialized = TRUE;
+
+	/* Now calculate the actual coefficients.													*/
+	err_code = fenc_LSSS_calculate_coefficients_from_policy(&policy, &(trapdoor->attribute_list), &coefficient_list,
+															scheme_context->global_params->pairing);
+	if (err_code != FENC_ERROR_NONE) {
+		LOG_ERROR("%s: unable to compute LSSS coefficients", __func__);
+		result = FENC_ERROR_INVALID_CIPHERTEXT;
+		goto cleanup;
+	}
+	/* Allocate some temporary work variables.	*/
+	elements_initialized = TRUE;
+	element_init_GT(tempGT, scheme_context->global_params->pairing);
+	element_init_GT(temp2GT, scheme_context->global_params->pairing);
+	element_init_GT(temp3GT, scheme_context->global_params->pairing);
+	element_init_GT(temp4GT, scheme_context->global_params->pairing);
+	element_init_GT(prodT, scheme_context->global_params->pairing);
+	element_init_GT(finalT, scheme_context->global_params->pairing);
+	element_init_G1(prodONE, scheme_context->global_params->pairing);
+	element_init_G1(tempONE, scheme_context->global_params->pairing);
+	element_init_G1(temp2ONE, scheme_context->global_params->pairing);
+	element_init_G1(temp3ONE, scheme_context->global_params->pairing);
+	element_init_Zr(tempZ, scheme_context->global_params->pairing);
+	element_init_Zr(temp2Z, scheme_context->global_params->pairing);
+
+	/* Now compute the product of the sub-components raised to the coefficients:
+	 *		prodT = \prod_{i=0}^num_attributes (Z_i^{coefficient[i]}).
+	 * We compute one of these for every value in attribute_list_N.	 */
+	element_set1(prodT);
+	element_set1(prodONE);
+	for (i = 0; i < coefficient_list.num_coefficients; i++) {
+
+		if (coefficient_list.coefficients[i].is_set == TRUE) {
+			/*
+			 * Let index_ciph be the attribute's index in the ciphertext structure.
+			 * Let index_key be the attribute's index in the key structure.
+			 *
+			 * Compute finalT = e(CONE[index_ciph] , LTWO) * e(DTWO[index_ciph] , KXONE[index_key]).		*/
+
+			/* Find the corresponding indices in the ciphertext attribute list and in the key.	*/
+			DEBUG_ELEMENT_PRINTF("running libfenc_get_attribute_index_in_list\n");
+			index_key = libfenc_get_attribute_index_in_list(&(ciphertext_KSFCP.attribute_list.attribute[i]), &(trapdoor->attribute_list));
+			index_ciph = i;/*libfenc_get_attribute_index_in_list(&(attribute_list.attribute[i]), &(key_KSFCP.attribute_list));*/
+
+			if (index_ciph < 0 || index_key < 0) {
+				DEBUG_ELEMENT_PRINTF("ciphertext element %d=%B\n", index_ciph, ciphertext_KSFCP.attribute_list.attribute[i].attribute_hash);
+				DEBUG_ELEMENT_PRINTF("ciphertext element %d=%s\n", index_ciph, ciphertext_KSFCP.attribute_list.attribute[i].attribute_str);
+
+				LOG_ERROR("%s: could not find attribute in trapdoor and ciphertext (k=%d,c=%d)", __func__, index_key, index_ciph);
+				/*DEBUG_ELEMENT_PRINTF("attribute(%s)=%B\n", attribute_list.attribute[i].attribute_str, attribute_list.attribute[i].attribute_hash);*/
+				result = FENC_ERROR_INVALID_INPUT;
+				goto cleanup;
+			}
+
+			/* Compute prodONE *= CONE[index_ciph]^{coefficient[i]} */
+			element_pow_zn(tempONE, ciphertext_KSFCP.CONE[index_ciph], coefficient_list.coefficients[i].coefficient);
+			element_mul(temp2ONE, tempONE, prodONE);
+			element_set(prodONE, temp2ONE);
+
+			/* Compute finalT = e(KXprimeONE[index_key]^{coefficient[i]}, DTWO[index_ciph]).		*/
+			element_pow_zn(tempONE, trapdoor->KXprimeONE[index_key], coefficient_list.coefficients[i].coefficient);
+			pairing_apply(finalT, tempONE, ciphertext_KSFCP.DTWO[index_ciph], scheme_context->global_params->pairing);
+
+			/* We computed the intermediate value as "finalT".
+			 * Now compute prodT *= finalT.	*/
+			element_mul(temp2GT, finalT, prodT);
+			element_set(prodT, temp2GT);
+		} /* end of if coefficient.is_set clause */
+	} /* end of for clause */
+
+	/* Now compute prodT *= e(prodONE, LprimeTWO).	*/
+	pairing_apply(finalT, prodONE, trapdoor->LprimeTWO, scheme_context->global_params->pairing);
+	element_mul(temp2GT, finalT, prodT);
+	element_set(prodT, temp2GT);
+
+	/* Save prodT to QeggT */
+	element_init_GT(Q->QeggT, scheme_context->global_params->pairing);
+	element_set(Q->QeggT, prodT);
+
+	/* Compute A = prodT = e(CprimeONE, TgammaTWO) / prodT.	*/
+	pairing_apply(tempGT, ciphertext_KSFCP.CprimeONE, trapdoor->TgammaTWO, scheme_context->global_params->pairing);
+	element_invert(temp2GT, prodT);
+	element_mul(prodT, tempGT, temp2GT);
+
+	/* Compute B = tempGT = e(CgammaOne, TTWO) */
+	pairing_apply(tempGT, ciphertext_KSFCP.CgammaONE, trapdoor->TgammaTWO, scheme_context->global_params->pairing);
+
+	/* Compare A and B */
+	if(!element_cmp(prodT, tempGT)){
+		result = FENC_ERROR_INVALID_INPUT;
+		goto cleanup;
+	}
+
+	/* Success!	*/
+	result = FENC_ERROR_NONE;
+
+cleanup:
+	/* If the coefficient list was allocated/initialized, we have to clear it.	*/
+	if (coefficients_initialized == TRUE) {
+		LSSS_clear_coefficients_list(&coefficient_list);
+	}
+
+	/* Clear temporary variables.	*/
+	if (elements_initialized == TRUE) {
+		element_clear(finalT);
+		element_clear(prodT);
+		element_clear(tempGT);
+		element_clear(temp2GT);
+		element_clear(temp3GT);
+		element_clear(temp4GT);
+		element_clear(prodONE);
+		element_clear(tempONE);
+		element_clear(temp2ONE);
+		element_clear(temp3ONE);
+		element_clear(tempZ);
+		element_clear(temp2Z);
+	}
+
+	return result;
+}
