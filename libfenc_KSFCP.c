@@ -1780,7 +1780,7 @@ libfenc_gen_ukey_KSFCP(fenc_context *context, fenc_USK_KSFCP *usk, fenc_UPK_KSFC
 
 	/* Get the scheme-specific context. */
 	scheme_context = (fenc_scheme_context_KSFCP*)context->scheme_context;
-	if (scheme_context != FENC_SCHEME_KSFCP) {
+	if (scheme_context == NULL) {
 		result = FENC_ERROR_INVALID_CONTEXT;
 		goto cleanup;
 	}
@@ -1820,7 +1820,7 @@ libfenc_import_usk_KSFCP(fenc_context *context, fenc_USK_KSFCP *usk, uint8 *buff
 	size_t						import_len;
 	/* Get the scheme-specific context. */
 	scheme_context = (fenc_scheme_context_KSFCP*)context->scheme_context;
-	if (scheme_context != FENC_SCHEME_KSFCP) {
+	if (scheme_context == NULL) {
 		return FENC_ERROR_INVALID_CONTEXT;
 	}
 
@@ -1845,7 +1845,7 @@ libfenc_import_upk_KSFCP(fenc_context *context, fenc_UPK_KSFCP *upk, uint8 *buff
 	size_t						import_len;
 	/* Get the scheme-specific context. */
 	scheme_context = (fenc_scheme_context_KSFCP*)context->scheme_context;
-	if (scheme_context != FENC_SCHEME_KSFCP) {
+	if (scheme_context == NULL) {
 		return FENC_ERROR_INVALID_CONTEXT;
 	}
 
@@ -1871,7 +1871,7 @@ libfenc_export_usk_KSFCP(fenc_context *context, fenc_USK_KSFCP *usk, uint8 *buff
 
 	/* Get the scheme-specific context. */
 	scheme_context = (fenc_scheme_context_KSFCP*)context->scheme_context;
-	if (scheme_context != FENC_SCHEME_KSFCP) {
+	if (scheme_context == NULL) {
 		return FENC_ERROR_INVALID_CONTEXT;
 	}
 
@@ -1895,7 +1895,7 @@ libfenc_export_upk_KSFCP(fenc_context *context, fenc_UPK_KSFCP *upk, uint8 *buff
 
 	/* Get the scheme-specific context. */
 	scheme_context = (fenc_scheme_context_KSFCP*)context->scheme_context;
-	if (scheme_context != FENC_SCHEME_KSFCP) {
+	if (scheme_context == NULL) {
 		return FENC_ERROR_INVALID_CONTEXT;
 	}
 
@@ -1920,7 +1920,7 @@ libfenc_extract_ksfkey_KSFCP(fenc_context *context, fenc_KSF_key_KSFCP *ksfkey, 
 
 	/* Get the scheme-specific context. */
 	scheme_context = (fenc_scheme_context_KSFCP*)context->scheme_context;
-	if (scheme_context != FENC_SCHEME_KSFCP) {
+	if (scheme_context == NULL) {
 		return FENC_ERROR_INVALID_CONTEXT;
 	}
 	/* Obtain the KSFCP-specific key data structure and make sure it's correct.	*/
@@ -1964,7 +1964,7 @@ libfenc_import_ksfkey_KSFCP(fenc_context *context, fenc_KSF_key_KSFCP *ksfkey, u
 	size_t						import_len;
 	/* Get the scheme-specific context. */
 	scheme_context = (fenc_scheme_context_KSFCP*)context->scheme_context;
-	if (scheme_context != FENC_SCHEME_KSFCP) {
+	if (scheme_context == NULL) {
 		return FENC_ERROR_INVALID_CONTEXT;
 	}
 
@@ -1992,7 +1992,7 @@ libfenc_export_ksfkey_KSFCP(fenc_context *context, fenc_KSF_key_KSFCP *ksfkey, u
 
 	/* Get the scheme-specific context. */
 	scheme_context = (fenc_scheme_context_KSFCP*)context->scheme_context;
-	if (scheme_context != FENC_SCHEME_KSFCP) {
+	if (scheme_context == NULL) {
 		return FENC_ERROR_INVALID_CONTEXT;
 	}
 
@@ -2019,7 +2019,7 @@ libfenc_gen_trapdoor_KSFCP(fenc_context *context, fenc_key *key, fenc_KSF_key_KS
 
 	/* Get the scheme-specific context. */
 	scheme_context = (fenc_scheme_context_KSFCP*)context->scheme_context;
-	if (scheme_context != FENC_SCHEME_KSFCP) {
+	if (scheme_context == NULL) {
 		return FENC_ERROR_INVALID_CONTEXT;
 	}
 
@@ -2100,7 +2100,7 @@ libfenc_import_trapdoor_KSFCP(fenc_context *context, fenc_trapdoor_KSFCP *trapdo
 	uint8 						*buf_ptr = buffer;
 	/* Get the scheme-specific context. */
 	scheme_context = (fenc_scheme_context_KSFCP*)context->scheme_context;
-	if (scheme_context != FENC_SCHEME_KSFCP) {
+	if (scheme_context == NULL) {
 		return FENC_ERROR_INVALID_CONTEXT;
 	}
 
@@ -2153,7 +2153,7 @@ libfenc_export_trapdoor_KSFCP(fenc_context *context, fenc_trapdoor_KSFCP *trapdo
 
 	/* Get the scheme-specific context. */
 	scheme_context = (fenc_scheme_context_KSFCP*)context->scheme_context;
-	if (scheme_context != FENC_SCHEME_KSFCP) {
+	if (scheme_context == NULL) {
 		return FENC_ERROR_INVALID_CONTEXT;
 	}
 
@@ -2192,7 +2192,7 @@ cleanup:
 }
 
 FENC_ERROR
-libfenc_build_index_KSFCP(fenc_context *context, char *keywords[], size_t num_keywords, fenc_index_KSFCP *index)
+libfenc_build_index_KSFCP(fenc_context *context, char keywords[][KEYWORD_SIZE], size_t num_keywords, fenc_index_KSFCP *index)
 {
 	FENC_ERROR					result = FENC_ERROR_UNKNOWN, err_code = FENC_ERROR_NONE;
 	fenc_scheme_context_KSFCP*	scheme_context;
@@ -2201,7 +2201,7 @@ libfenc_build_index_KSFCP(fenc_context *context, char *keywords[], size_t num_ke
 
 	/* Get the scheme-specific context. */
 	scheme_context = (fenc_scheme_context_KSFCP*)context->scheme_context;
-	if (scheme_context != FENC_SCHEME_KSFCP) {
+	if (scheme_context == NULL) {
 		return FENC_ERROR_INVALID_CONTEXT;
 	}
 
@@ -2249,7 +2249,7 @@ libfenc_export_index_KSFCP(fenc_context *context, fenc_index_KSFCP *index, fenc_
 
 	/* Get the scheme-specific context. */
 	scheme_context = (fenc_scheme_context_KSFCP*)context->scheme_context;
-	if (scheme_context != FENC_SCHEME_KSFCP) {
+	if (scheme_context == NULL) {
 		return FENC_ERROR_INVALID_CONTEXT;
 	}
 

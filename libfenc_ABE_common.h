@@ -1,7 +1,7 @@
 /*!	\file libfenc_abe_common.h
  *
  *	\brief Routines that are shared among the schemes in the Functional Encryption Library.
- *  
+ *
  *	Copyright 2009 Matthew Green. All rights reserved.
  */
 
@@ -24,6 +24,7 @@ typedef enum _FENC_ATTRIBUTE_NODE_TYPE {
 #define	MAX_CIPHERTEXT_ATTRIBUTES	1024
 
 #define	MAX_INDEX_KEYWORDS	256
+#define KEYWORD_SIZE 256
 
 /* Maximum attribute string length in bytes (this includes a NULL termination byte.) */
 #define MAX_ATTRIBUTE_STR	256
@@ -47,7 +48,7 @@ typedef struct _fenc_attribute {
 	element_t		share;								/* Optional: secret share value.	*/
 	Bool			contains_share;
 } fenc_attribute;
-	
+
 /**
  *  Attribute list data structure.
  */
@@ -174,7 +175,7 @@ FENC_ERROR	fenc_attribute_list_initialize(fenc_attribute_list *attribute_list, u
 /*!
  * Find the index of an attribute within the list.  This searches on either the
  * attribute_hash or the attribute_str value (in that order) depending
- * on which is available.  
+ * on which is available.
  *
  * @param attribute			Pointer to a fenc_attribute structure
  * @param attribute_list	Pointer to a fenc_attribute_list structure
@@ -253,7 +254,7 @@ FENC_ERROR	fenc_attribute_list_to_buffer(fenc_attribute_list *attribute_list, ui
 
 /*!
  * Parse a string of attributes into an fenc_attribute_list structure.
- * 
+ *
  * @param str_list				Buffer to attribute list string.
  * @param attribute_list		fenc_attribute_list pointer.
  */
@@ -325,7 +326,7 @@ fenc_attribute_subtree*	fenc_policy_create_node(FENC_ATTRIBUTE_NODE_TYPE node_ty
 
 /*!
  * Recursively compact a tree structure.  This consists of combining parent
- * and child nodes where appropriate. 
+ * and child nodes where appropriate.
  *
  * The process is nicked from John Bethencourt's library, though the code isn't.
  *

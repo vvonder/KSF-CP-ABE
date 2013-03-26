@@ -560,7 +560,7 @@ FENC_ERROR
 libfenc_export_trapdoor_KSFCP(fenc_context *context, fenc_trapdoor_KSFCP *trapdoor, uint8 *buffer, size_t buf_len, size_t *export_result_len);
 
 FENC_ERROR
-libfenc_build_index_KSFCP(fenc_context *context, char *keywords[], size_t num_keywords, fenc_index_KSFCP *index);
+libfenc_build_index_KSFCP(fenc_context *context, char keywords[][KEYWORD_SIZE], size_t num_keywords, fenc_index_KSFCP *index);
 
 FENC_ERROR
 libfenc_export_index_KSFCP(fenc_context *context, fenc_index_KSFCP *index, fenc_index_HK_KSFCP *hk_buffer);

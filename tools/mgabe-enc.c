@@ -6,6 +6,7 @@
 #include "openssl/evp.h"
 #include "openssl/err.h"
 #include "openssl/rand.h"
+#include <openssl/hmac.h>
 #include <math.h>
 
 #define SIZE BUFSIZE
@@ -405,11 +406,17 @@ int abe_encrypt_from_file(FENC_SCHEME_TYPE scheme, char *key_string, char *g_par
 
 int build_index(fenc_context *pcontext, char *keyword_file, char *index_file)
 {
+	FENC_ERROR result;
 	FILE *fp;
 	char keywords[MAX_INDEX_KEYWORDS][KEYWORD_SIZE];
 	int i = 0, num_keywords = 0;
 	fenc_index_KSFCP index;
 	fenc_index_HK_KSFCP hk_buffer[MAX_INDEX_KEYWORDS];
+	uint8 R[R_SIZE];
+	uint8 *digest;
+	uint8 *R_buf, *MAC_buf;
+	int buf_len;
+
 
 	fp = fopen(keyword_file, "r");
 	while(i<MAX_INDEX_KEYWORDS
@@ -423,15 +430,33 @@ int build_index(fenc_context *pcontext, char *keyword_file, char *index_file)
 
 #ifdef DEBUG
 	printf("Reading Keywords:\n");
-	for(i=0;i<num_keywords;i++)
+	for(i=0; i<num_keywords; i++)
 		printf("%d %s\n", strlen(keywords[i]), keywords[i]);
 #endif
 
-	debug("Building Index...\n");
 	libfenc_build_index_KSFCP(pcontext, keywords, num_keywords, &index);
+	report_error("Building Index", result);
 
-	debug("Exporting Index...\n");
 	libfenc_export_index_KSFCP(pcontext, &index, hk_buffer);
+	report_error("Exporting Index", result);
+
+	/* Store Index to HMAC */
+	fp = fopen(index_file, "w");
+
+	fprintf(fp, "SIZE:%d|", index.num_components);
+
+	for(i=0; i<num_keywords; i++)
+	{
+		RAND_bytes(R, R_SIZE);
+		digest = HMAC(EVP_sha1(), hk_buffer[i].buffer, hk_buffer[i].len, R, R_SIZE, NULL, NULL);
+
+		R_buf = NewBase64Encode(R, R_SIZE, FALSE, &buf_len);
+		fprintf(fp, "%s", R_buf);
+		MAC_buf = NewBase64Encode(digest, MAC_SIZE, FALSE, &buf_len);
+		fprintf(fp, "%s", MAC_buf);
+	}
+
+	fclose(fp);
 
 	return 0;
 }
