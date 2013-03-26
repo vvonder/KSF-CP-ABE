@@ -124,6 +124,8 @@ typedef struct _fenc_UPK_KSFCP {
 
 /* for KSF */
 typedef struct _fenc_trapdoor_KSFCP {
+	uint32					reference_count;
+	fenc_attribute_list		attribute_list;
 	uint32					num_components;
 	element_t				TgammaTWO;
 	element_t				TbetaTWO;
@@ -131,6 +133,11 @@ typedef struct _fenc_trapdoor_KSFCP {
 	element_t				TTWO;
 	element_t				KXprimeONE[MAX_CIPHERTEXT_ATTRIBUTES];
 } fenc_trapdoor_KSFCP;
+
+/* for KSF */
+typedef struct _fenc_Q_KSFCP {
+	element_t				QeggT;
+} fenc_Q_KSFCP;
 
 /********************************************************************************
  * Main routines
@@ -551,7 +558,7 @@ FENC_ERROR
 libfenc_gen_trapdoor_KSFCP(fenc_context *context, fenc_key *key, fenc_KSF_key_KSFCP *ksfkey, fenc_USK_KSFCP *usk, char *keyword, fenc_trapdoor_KSFCP *trapdoor);
 
 FENC_ERROR
-fenc_trapdoor_KSFCP_initialize(fenc_trapdoor_KSFCP *trapdoor, size_t num_components, fenc_global_params_KSFCP *global_params);
+fenc_trapdoor_KSFCP_initialize(fenc_trapdoor_KSFCP *trapdoor, fenc_attribute_list *attribute_list, size_t num_components, fenc_global_params_KSFCP *global_params);
 
 FENC_ERROR
 libfenc_import_trapdoor_KSFCP(fenc_context *context, fenc_trapdoor_KSFCP *trapdoor, uint8 *buffer, size_t buf_len);

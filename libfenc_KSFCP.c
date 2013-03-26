@@ -2015,6 +2015,7 @@ libfenc_gen_trapdoor_KSFCP(fenc_context *context, fenc_key *key, fenc_KSF_key_KS
 	fenc_scheme_context_KSFCP*	scheme_context;
 	element_t					tempTWO, temp2TWO, tempZ;
 	fenc_key_KSFCP				*key_KSFCP = NULL;
+	Bool						elements_initialized = FALSE;
 	size_t i;
 
 	/* Get the scheme-specific context. */
@@ -2037,7 +2038,7 @@ libfenc_gen_trapdoor_KSFCP(fenc_context *context, fenc_key *key, fenc_KSF_key_KS
 
 	trapdoor->num_components = key_KSFCP->num_components;
 
-	err_code = fenc_trapdoor_KSFCP_initialize(trapdoor, trapdoor->num_components, scheme_context->global_params);
+	err_code = fenc_trapdoor_KSFCP_initialize(trapdoor, &(key_KSFCP->attribute_list), trapdoor->num_components, scheme_context->global_params);
 	if(err_code != FENC_ERROR_NONE) return err_code;
 
 	element_pow_zn(trapdoor->TgammaTWO, ksfkey->KgammaTWO, usk->uZ); /* T_gamma = K_gamma^u */
@@ -2046,11 +2047,13 @@ libfenc_gen_trapdoor_KSFCP(fenc_context *context, fenc_key *key, fenc_KSF_key_KS
 
 	element_init_Zr(tempZ, scheme_context->global_params->pairing);
 	element_init_G2(tempTWO, scheme_context->global_params->pairing);
+	element_init_G2(temp2TWO, scheme_context->global_params->pairing);
+	elements_initialized = TRUE;
+
 	/* Hash the attribute string to Zr, then hash the result into an element of G2 (tempTWO).*/
 	err_code = hash2_attribute_string_to_G1(keyword, &tempTWO, &tempZ); /* tempTWO = H(W) */
 	if(err_code != FENC_ERROR_NONE) return err_code;
 
-	element_init_G2(temp2TWO, scheme_context->global_params->pairing);
 	element_pow_zn(temp2TWO, ksfkey->KbetaTWO, usk->uZ); /* temp2TWO = K_beta^u */
 
 	element_mul(trapdoor->TbetaTWO, tempTWO, temp2TWO); /* T_beta = K_beta^u * H(W) */
@@ -2064,18 +2067,51 @@ libfenc_gen_trapdoor_KSFCP(fenc_context *context, fenc_key *key, fenc_KSF_key_KS
 	result = FENC_ERROR_NONE;
 
 cleanup:
-	element_clear(tempZ);
-	element_clear(tempTWO);
-	element_clear(temp2TWO);
+	/* If there was an error, clean up after ourselves.	*/
+	if (result != FENC_ERROR_NONE) {
+		if (trapdoor != NULL) {
+			fenc_attribute_list_clear(&(trapdoor->attribute_list));
+
+			/* Clear out the trapdoor internals.
+			if (elements_initialized == TRUE)	{
+				fenc_key_KSFCP_clear(key_KSFCP);
+			}*/
+		}
+	}
+
+	if (elements_initialized == TRUE)	{
+		element_clear(tempZ);
+		element_clear(tempTWO);
+		element_clear(temp2TWO);
+	}
 	return result;
 }
 
 FENC_ERROR
-fenc_trapdoor_KSFCP_initialize(fenc_trapdoor_KSFCP *trapdoor, size_t num_components, fenc_global_params_KSFCP *global_params)
+fenc_trapdoor_KSFCP_initialize(fenc_trapdoor_KSFCP *trapdoor, fenc_attribute_list *attribute_list, size_t num_components, fenc_global_params_KSFCP *global_params)
 {
 	FENC_ERROR					result = FENC_ERROR_UNKNOWN, err_code = FENC_ERROR_NONE;
 	size_t i;
 
+	memset(trapdoor, 0, sizeof(fenc_trapdoor_KSFCP));
+	trapdoor->reference_count = 1;
+
+	/* Copy the attribute list structure into the key.	If copy_attr_list is TRUE we
+	 * call fenc_attribute_list_copy() to duplicate all of the internals.  Otherwise
+	 * we just copy the top-level structure.	*/
+
+	/* for KSF always TRUE */
+/*	if (copy_attr_list == FALSE) {
+*/
+		memcpy(&(trapdoor->attribute_list), attribute_list, sizeof(fenc_attribute_list));
+		trapdoor->attribute_list.num_attributes = attribute_list->num_attributes;
+/*	} else {
+		err_code = fenc_attribute_list_copy(&(trapdoor->attribute_list), attribute_list, global_params->pairing);
+		if (err_code != FENC_ERROR_NONE) {
+			return NULL;
+		}
+	}
+*/
 	for (i = 0; i < num_components; i++) {
 		element_init_G1(trapdoor->KXprimeONE[i], global_params->pairing);
 	}
@@ -2095,21 +2131,39 @@ FENC_ERROR
 libfenc_import_trapdoor_KSFCP(fenc_context *context, fenc_trapdoor_KSFCP *trapdoor, uint8 *buffer, size_t buf_len)
 {
 	FENC_ERROR 					err_code = FENC_ERROR_NONE;
+	fenc_attribute_list			*attribute_list;
 	fenc_scheme_context_KSFCP 	*scheme_context;
 	size_t						result_len, num_components=0 ,i;
 	uint8 						*buf_ptr = buffer;
+
 	/* Get the scheme-specific context. */
 	scheme_context = (fenc_scheme_context_KSFCP*)context->scheme_context;
 	if (scheme_context == NULL) {
 		return FENC_ERROR_INVALID_CONTEXT;
 	}
 
-	err_code = import_components_from_buffer(buffer, buf_len, &result_len, "%d",
-											&(num_components));
-	if(err_code != FENC_ERROR_NONE || num_components==0) return err_code;
+		/* Allocate an attribute list data structure.	*/
+	attribute_list = (fenc_attribute_list*) SAFE_MALLOC(sizeof(fenc_attribute_list));
+	if (attribute_list == NULL) {
+		LOG_ERROR("%s: could not allocate attribute list", __func__);
+		return FENC_ERROR_OUT_OF_MEMORY;
+	}
+
+	/* import attributes only -- should be first in buffer */
+	err_code = import_components_from_buffer(buffer, buf_len, &result_len, "%A%d",
+											 attribute_list,
+											 &(num_components));
+
+	/* sanity check */
+	if(num_components != attribute_list->num_attributes) {
+		LOG_ERROR("%s: mis-match in attributes found in trapdoor", __func__);
+		err_code = FENC_ERROR_INVALID_INPUT;
+		goto cleanup;
+	}
+
 	trapdoor->num_components = num_components;
 
-	err_code = fenc_trapdoor_KSFCP_initialize(trapdoor, trapdoor->num_components, scheme_context->global_params);
+	err_code = fenc_trapdoor_KSFCP_initialize(trapdoor, attribute_list, trapdoor->num_components, scheme_context->global_params);
 	if(err_code != FENC_ERROR_NONE) return err_code;
 
 	buf_ptr = buffer + result_len;
@@ -2139,6 +2193,9 @@ libfenc_import_trapdoor_KSFCP(fenc_context *context, fenc_trapdoor_KSFCP *trapdo
 		buf_len -= result_len;
 	}
 
+cleanup:
+	/* clean up here */
+	free(attribute_list);
 	/* Return success. */
 	return FENC_ERROR_NONE;
 }
@@ -2159,7 +2216,8 @@ libfenc_export_trapdoor_KSFCP(fenc_context *context, fenc_trapdoor_KSFCP *trapdo
 
 	*export_result_len = 0;
 
-	err_code = export_components_to_buffer(buf_ptr, buf_len, &result_len, "%d%C%C%C%C",
+	err_code = export_components_to_buffer(buf_ptr, buf_len, &result_len, "%A%d%C%C%C%C",
+											&(trapdoor->attribute_list),
 											trapdoor->num_components,
 											trapdoor->LprimeTWO,
 											trapdoor->TTWO,
@@ -2267,3 +2325,5 @@ libfenc_export_index_KSFCP(fenc_context *context, fenc_index_KSFCP *index, fenc_
 cleanup:
 	return result;
 }
+
+
