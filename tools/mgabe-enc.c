@@ -16,9 +16,10 @@
 // size_t attr_len = 0;
 // char *attr[MAX_CIPHERTEXT_ATTRIBUTES];
 char *attribute_string = NULL, *policy_string = NULL;
-int abe_encrypt(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, char *data, char *enc_file, int isXML, char *ext);
-int abe_encrypt_from_file(FENC_SCHEME_TYPE scheme, char *key_string, char *g_params, char *public_params, char *data_file, char *enc_file, int isXML, char *ext);
+int abe_encrypt(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, char *data, char *enc_file, int isXML, char *ext, char *keyword_file, char *index_file);
+int abe_encrypt_from_file(FENC_SCHEME_TYPE scheme, char *key_string, char *g_params, char *public_params, char *data_file, char *enc_file, int isXML, char *ext, char *keyword_file, char *index_file);
 fenc_attribute_policy *construct_test_policy();
+char *freadline(char *str, int num, FILE *stream);
 
 /* Description: mgabe-keygen takes the outfile to write the users keys, and the .
 
@@ -32,13 +33,15 @@ int main (int argc, char *argv[]) {
 	ssize_t data_len;
 	FILE *fp;
 	int c, exit_status = -1;
+	char *keyword_file = NULL;
+	char *index_file = "index.ksfcp";
 
 	opterr = 0;
 	// default
 	aflag = pflag = dflag = oflag = iflag = xflag = FALSE;
 
 
-	while ((c = getopt (argc, argv, "a:d:i:o:m:p:xh")) != -1) {
+	while ((c = getopt (argc, argv, "a:d:i:o:m:p:x:w:h")) != -1) {
 
 		switch (c)
 		{
@@ -106,6 +109,9 @@ int main (int argc, char *argv[]) {
 					ext = "cpabe";
 				}
 				break;
+			case 'w':
+				keyword_file = optarg;
+				break;
 			case 'x': /* output format: xml format */
 				xflag = TRUE;
 				break;
@@ -159,7 +165,7 @@ int main (int argc, char *argv[]) {
 		goto clean;
 	}
 
-	exit_status=abe_encrypt(mode, PARAM, public_params, data, enc_file, xflag, ext);
+	exit_status=abe_encrypt(mode, PARAM, public_params, data, enc_file, xflag, ext, keyword_file, index_file);
 clean:
 	free(data);
 	// free attr
@@ -168,10 +174,10 @@ clean:
 
 void print_help(void)
 {
-	printf("Usage: ./abe-enc -m [ KP or CP ] -d [ \"data\" ] -i [ input-filename ]\n\t\t -a Attr1,Attr2,Attr3 -p '((Attr1 and Attr2) or Attr3)' -o [ output-filename ]\n\n");
+	printf("Usage: ./abe-enc -m [ KP or CP ] -d [ \"data\" ] -i [ input-filename ]\n\t\t -a Attr1,Attr2,Attr3 -p '((Attr1 and Attr2) or Attr3)' -o [ output-filename ]\n\n -w keyword_file");
 }
 
-int abe_encrypt(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, char *data, char *enc_file, int isXML, char *ext)
+int abe_encrypt(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, char *data, char *enc_file, int isXML, char *ext, char *keyword_file, char *index_file)
 {
 	FENC_ERROR result;
 	fenc_context context;
@@ -353,13 +359,27 @@ int abe_encrypt(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, ch
 
 	fenc_func_input_clear(&func_object_input);
 
+	/* Build Index */
+	if(scheme == FENC_SCHEME_KSFCP){
+		if(keyword_file==NULL || index_file==NULL){
+			printf("No keyword file and index file specified, skip build index!\n");
+		}else{
+			result = build_index(&context, keyword_file, index_file);
+			report_error("Building and Storing Index", result);
+		}
+	}
+
+	/* Destroy the context. */
+	result = libfenc_destroy_context(&context);
+	report_error("Destroying the encryption context", result);
+
 	/* Shutdown the library. */
 	result = libfenc_shutdown();
 	report_error("Shutting down library", result);
 	return 0;
 }
 
-int abe_encrypt_from_file(FENC_SCHEME_TYPE scheme, char *key_string, char *g_params, char *public_params, char *data_file, char *enc_file, int isXML, char *ext)
+int abe_encrypt_from_file(FENC_SCHEME_TYPE scheme, char *key_string, char *g_params, char *public_params, char *data_file, char *enc_file, int isXML, char *ext, char *keyword_file, char *index_file)
 {
 	char *data = NULL;
 	ssize_t data_len;
@@ -378,7 +398,55 @@ int abe_encrypt_from_file(FENC_SCHEME_TYPE scheme, char *key_string, char *g_par
 		attribute_string=strdup(key_string);
 	else
 		policy_string=strdup(key_string);
-	int exit_status=abe_encrypt(scheme, g_params, public_params, data, enc_file, isXML, ext);
+	int exit_status=abe_encrypt(scheme, g_params, public_params, data, enc_file, isXML, ext, keyword_file, index_file);
 	free(data);
 	return exit_status;
 }
+
+int build_index(fenc_context *pcontext, char *keyword_file, char *index_file)
+{
+	FILE *fp;
+	char keywords[MAX_INDEX_KEYWORDS][KEYWORD_SIZE];
+	int i = 0, num_keywords = 0;
+	fenc_index_KSFCP index;
+	fenc_index_HK_KSFCP hk_buffer[MAX_INDEX_KEYWORDS];
+
+	fp = fopen(keyword_file, "r");
+	while(i<MAX_INDEX_KEYWORDS
+		&& freadline(keywords[i], KEYWORD_SIZE, fp))
+	{
+		i++;
+	}
+	fclose(fp);
+
+	num_keywords = i;
+
+#ifdef DEBUG
+	printf("Reading Keywords:\n");
+	for(i=0;i<num_keywords;i++)
+		printf("%d %s\n", strlen(keywords[i]), keywords[i]);
+#endif
+
+	debug("Building Index...\n");
+	libfenc_build_index_KSFCP(pcontext, keywords, num_keywords, &index);
+
+	debug("Exporting Index...\n");
+	libfenc_export_index_KSFCP(pcontext, &index, hk_buffer);
+
+	return 0;
+}
+
+char *freadline(char *str, int num, FILE *stream)
+{
+	int len = 0;
+	char *result = fgets(str, num, stream);
+	if(result != NULL){
+		len = strlen(str);
+		while(len>0 && str[len-1] == '\r' || str[len-1] == '\n'){
+			str[len-1] = '\0';
+			len--;
+		}
+	}
+	return result;
+}
+

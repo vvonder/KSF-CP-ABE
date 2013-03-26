@@ -38,6 +38,8 @@ typedef enum Scheme SchemeType;
 #define SIZE_MAX KEYSIZE_MAX
 #define MAX_ATTRIBUTES 100
 #define SESSION_KEY_LEN 16
+/* for KSF */
+#define KEYWORD_SIZE 256
 
 #define PARAM "d224.param"
 #define MAGIC "ABE|"
