@@ -1971,7 +1971,7 @@ libfenc_import_ksfkey_KSFCP(fenc_context *context, fenc_KSF_key_KSFCP *ksfkey, u
 	if(ksfkey == NULL) return FENC_ERROR_INVALID_KEY;
 	element_init_G2(ksfkey->KbetaTWO, scheme_context->global_params->pairing);
 	element_init_G2(ksfkey->KgammaTWO, scheme_context->global_params->pairing);
-	/* import attributes only -- should be first in buffer */
+
 	err_code = import_components_from_buffer(buffer, buf_len, &import_len, "%C%C",
 											&(ksfkey->KbetaTWO),
 											&(ksfkey->KgammaTWO));
@@ -1996,6 +1996,7 @@ libfenc_export_ksfkey_KSFCP(fenc_context *context, fenc_KSF_key_KSFCP *ksfkey, u
 		return FENC_ERROR_INVALID_CONTEXT;
 	}
 
+	if(ksfkey == NULL) return FENC_ERROR_INVALID_KEY;
 	err_code = export_components_to_buffer(buf_ptr, buf_len, result_len, "%C%C",
 											ksfkey->KbetaTWO,
 											ksfkey->KgammaTWO);
@@ -2142,7 +2143,7 @@ libfenc_import_trapdoor_KSFCP(fenc_context *context, fenc_trapdoor_KSFCP *trapdo
 		return FENC_ERROR_INVALID_CONTEXT;
 	}
 
-		/* Allocate an attribute list data structure.	*/
+	/* Allocate an attribute list data structure.	*/
 	attribute_list = (fenc_attribute_list*) SAFE_MALLOC(sizeof(fenc_attribute_list));
 	if (attribute_list == NULL) {
 		LOG_ERROR("%s: could not allocate attribute list", __func__);
@@ -2507,4 +2508,54 @@ cleanup:
 	}
 
 	return result;
+}
+
+FENC_ERROR
+libfenc_import_Q_KSFCP(fenc_context *context, fenc_Q_KSFCP *Q, uint8 *buffer, size_t buf_len)
+{
+	FENC_ERROR err_code = FENC_ERROR_NONE;
+	fenc_scheme_context_KSFCP *scheme_context;
+	size_t						import_len;
+	/* Get the scheme-specific context. */
+	scheme_context = (fenc_scheme_context_KSFCP*)context->scheme_context;
+	if (scheme_context == NULL) {
+		return FENC_ERROR_INVALID_CONTEXT;
+	}
+
+	if(Q == NULL) return FENC_ERROR_INVALID_INPUT;
+	element_init_GT(Q->QeggT, scheme_context->global_params->pairing);
+
+	err_code = import_components_from_buffer(buffer, buf_len, &import_len, "%E",
+											&(Q->QeggT));
+	if (err_code != FENC_ERROR_NONE) {
+		return err_code;
+	}
+
+	/* Return success. */
+	return FENC_ERROR_NONE;
+}
+
+FENC_ERROR
+libfenc_export_Q_KSFCP(fenc_context *context, fenc_Q_KSFCP *Q, uint8 *buffer, size_t buf_len, size_t *result_len)
+{
+	FENC_ERROR err_code = FENC_ERROR_NONE;
+	fenc_scheme_context_KSFCP *scheme_context;
+	unsigned char *buf_ptr = (unsigned char*)buffer;
+
+	/* Get the scheme-specific context. */
+	scheme_context = (fenc_scheme_context_KSFCP*)context->scheme_context;
+	if (scheme_context == NULL) {
+		return FENC_ERROR_INVALID_CONTEXT;
+	}
+
+	if(Q == NULL) return FENC_ERROR_INVALID_INPUT;
+	err_code = export_components_to_buffer(buf_ptr, buf_len, result_len, "%E",
+											Q->QeggT);
+
+	if (err_code != FENC_ERROR_NONE) {
+		return err_code;
+	}
+
+cleanup:
+	return err_code;
 }

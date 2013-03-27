@@ -576,4 +576,10 @@ libfenc_export_index_KSFCP(fenc_context *context, fenc_index_KSFCP *index, fenc_
 FENC_ERROR
 libfenc_match_KSFCP(fenc_context *context, fenc_ciphertext *ciphertext, fenc_trapdoor_KSFCP *trapdoor, fenc_Q_KSFCP *Q);
 
+FENC_ERROR
+libfenc_import_Q_KSFCP(fenc_context *context, fenc_Q_KSFCP *Q, uint8 *buffer, size_t buf_len);
+
+FENC_ERROR
+libfenc_export_Q_KSFCP(fenc_context *context, fenc_Q_KSFCP *Q, uint8 *buffer, size_t buf_len, size_t *result_len);
+
 #endif /* ifndef __LIBFENC_KSFCP_H__ */
