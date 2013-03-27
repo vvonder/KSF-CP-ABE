@@ -41,6 +41,8 @@ typedef enum Scheme SchemeType;
 /* for KSF */
 #define R_SIZE 20
 #define MAC_SIZE 20
+#define BASE64_R_SIZE 28
+#define BASE64_MAC_SIZE 28
 #define MAX_PATH_SIZE 256
 
 #define PARAM "d224.param"

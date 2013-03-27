@@ -446,6 +446,10 @@ int build_index(fenc_context *pcontext, char *keyword_file, char *index_file)
 
 	for(i=0; i<num_keywords; i++)
 	{
+#ifdef DEBUG
+		debug("HK %d: ", i);
+		print_buffer_as_hex(hk_buffer[i].buffer,  hk_buffer[i].len);
+#endif
 		RAND_bytes(R, R_SIZE);
 		digest = HMAC(EVP_sha1(), hk_buffer[i].buffer, hk_buffer[i].len, R, R_SIZE, NULL, NULL);
 
@@ -453,6 +457,10 @@ int build_index(fenc_context *pcontext, char *keyword_file, char *index_file)
 		fprintf(fp, "%s", R_buf);
 		MAC_buf = NewBase64Encode(digest, MAC_SIZE, FALSE, &buf_len);
 		fprintf(fp, "%s", MAC_buf);
+
+		free(digest);
+		free(R_buf);
+		free(MAC_buf);
 	}
 
 	fclose(fp);

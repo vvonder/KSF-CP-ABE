@@ -90,7 +90,7 @@ typedef struct _fenc_index_KSFCP {
 /* for KSF */
 typedef struct _fenc_index_HK_KSFCP {
 	uint32					len;
-    uint8					*buffer;
+    uint8					buffer[256];
 } fenc_index_HK_KSFCP;
 
 /*!
@@ -138,6 +138,11 @@ typedef struct _fenc_trapdoor_KSFCP {
 typedef struct _fenc_Q_KSFCP {
 	element_t				QeggT;
 } fenc_Q_KSFCP;
+
+/* for KSF */
+typedef struct _fenc_KSF_HK_KSFCP {
+	element_t				HKeggT;	/* for keyword search */
+} fenc_KSF_HK_KSFCP;
 
 /********************************************************************************
  * Main routines
@@ -574,7 +579,7 @@ libfenc_export_index_KSFCP(fenc_context *context, fenc_index_KSFCP *index, fenc_
 
 /* Search decryptable CT */
 FENC_ERROR
-libfenc_match_KSFCP(fenc_context *context, fenc_ciphertext *ciphertext, fenc_trapdoor_KSFCP *trapdoor, fenc_Q_KSFCP *Q);
+libfenc_match_KSFCP(fenc_context *context, fenc_ciphertext *ciphertext, fenc_trapdoor_KSFCP *trapdoor, fenc_Q_KSFCP *Q, fenc_KSF_HK_KSFCP *HK);
 
 FENC_ERROR
 libfenc_import_Q_KSFCP(fenc_context *context, fenc_Q_KSFCP *Q, uint8 *buffer, size_t buf_len);

@@ -2313,10 +2313,8 @@ libfenc_export_index_KSFCP(fenc_context *context, fenc_index_KSFCP *index, fenc_
 
 	for(i=0; i<index->num_components; i++){
 		length = element_length_in_bytes(index->HKeggT[i]);
-		hk_buffer = (uint8 *)SAFE_MALLOC(length*sizeof(uint8));
-		element_to_bytes(hk_buffer, index->HKeggT[i]);
+		element_to_bytes(hk_buffer[i].buffer, index->HKeggT[i]);
 		hk_buffer[i].len = length;
-		hk_buffer[i].buffer = hk_buffer;
 	}
 
 	/* Success!		*/
@@ -2328,7 +2326,7 @@ cleanup:
 
 /* Search decryptable CT */
 FENC_ERROR
-libfenc_match_KSFCP(fenc_context *context, fenc_ciphertext *ciphertext, fenc_trapdoor_KSFCP *trapdoor, fenc_Q_KSFCP *Q)
+libfenc_match_KSFCP(fenc_context *context, fenc_ciphertext *ciphertext, fenc_trapdoor_KSFCP *trapdoor, fenc_Q_KSFCP *Q, fenc_KSF_HK_KSFCP *HK)
 {
 	FENC_ERROR						result = FENC_ERROR_UNKNOWN, err_code;
 	fenc_ciphertext_KSFCP			ciphertext_KSFCP;
@@ -2461,21 +2459,30 @@ libfenc_match_KSFCP(fenc_context *context, fenc_ciphertext *ciphertext, fenc_tra
 
 	/* Compute A = prodT = e(CprimeONE, TgammaTWO) / QeggT.	*/
 	pairing_apply(tempGT, ciphertext_KSFCP.CprimeONE, trapdoor->TgammaTWO, scheme_context->global_params->pairing);
-	element_invert(temp2GT, prodT);
+	element_invert(temp2GT, prodT); /* temp2GT = 1 / QeggT */
 	element_mul(prodT, tempGT, temp2GT);
 
 	/* Compute B = tempGT = e(CgammaOne, TTWO) */
 	pairing_apply(tempGT, ciphertext_KSFCP.CgammaONE, trapdoor->TTWO, scheme_context->global_params->pairing);
 
-#ifdef DEBUG
-	element_printf("A: %B\n", prodT);
-	element_printf("B: %B\n", tempGT);
-#endif
+
 	/* Compare A and B */
 	if(0 != element_cmp(prodT, tempGT)){
-		result = FENC_ERROR_INVALID_KEY;
+#ifdef DEBUG
+		element_printf("A: %B\n", prodT);
+		element_printf("B: %B\n", tempGT);
+#endif
+		result = FENC_ERROR_INVALID_INPUT;
 		goto cleanup;
 	}
+
+	/* Compute HK = prodT = e(CprimeONE, TbetaTWO) / QeggT for keyword search */
+	pairing_apply(tempGT, ciphertext_KSFCP.CprimeONE, trapdoor->TbetaTWO, scheme_context->global_params->pairing);
+	element_mul(prodT, tempGT, temp2GT);
+
+	/* Save prodT to HKeggT */
+	element_init_GT(HK->HKeggT, scheme_context->global_params->pairing);
+	element_set(HK->HKeggT, prodT);
 
 	/* Success!	*/
 	result = FENC_ERROR_NONE;
@@ -2546,6 +2553,31 @@ libfenc_export_Q_KSFCP(fenc_context *context, fenc_Q_KSFCP *Q, uint8 *buffer, si
 	if(Q == NULL) return FENC_ERROR_INVALID_INPUT;
 	err_code = export_components_to_buffer(buf_ptr, buf_len, result_len, "%E",
 											Q->QeggT);
+
+	if (err_code != FENC_ERROR_NONE) {
+		return err_code;
+	}
+
+cleanup:
+	return err_code;
+}
+
+FENC_ERROR
+libfenc_export_KSF_HK_KSFCP(fenc_context *context, fenc_KSF_HK_KSFCP *HK, uint8 *buffer, size_t buf_len, size_t *result_len)
+{
+	FENC_ERROR err_code = FENC_ERROR_NONE;
+	fenc_scheme_context_KSFCP *scheme_context;
+	unsigned char *buf_ptr = (unsigned char*)buffer;
+
+	/* Get the scheme-specific context. */
+	scheme_context = (fenc_scheme_context_KSFCP*)context->scheme_context;
+	if (scheme_context == NULL) {
+		return FENC_ERROR_INVALID_CONTEXT;
+	}
+
+	if(HK == NULL) return FENC_ERROR_INVALID_INPUT;
+	err_code = export_components_to_buffer(buf_ptr, buf_len, result_len, "%E",
+											HK->HKeggT);
 
 	if (err_code != FENC_ERROR_NONE) {
 		return err_code;

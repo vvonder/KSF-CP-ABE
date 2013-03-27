@@ -84,7 +84,7 @@ int read_inputfile(char *inputfile, char **abe_blob64)
 		if((input_len = read_file(fp, &input_buf)) > 0) {
 			// printf("Input file: %s\n", input_buf);
 			tokenize_inputfile(input_buf, abe_blob64, &aes_blob64, &iv_blob64);
-			debug("abe ciphertext = '%s'\n", *abe_blob64);
+			//debug("abe ciphertext = '%s'\n", *abe_blob64);
 			//debug("init vector = '%s'\n", iv_blob64);
 			//debug("aes ciphertext = '%s'\n", aes_blob64);
 			free(input_buf);
@@ -112,6 +112,11 @@ FENC_ERROR search_inputfile(char *input_file, char *index_file, fenc_context *co
 	fenc_ciphertext ciphertext;
 	char *abe_blob64 = NULL;
 	FILE *fp;
+	fenc_KSF_HK_KSFCP HK;
+	char *HK_buf[SIZE];
+	size_t HK_buf_len;
+	int i;
+	uint8 b64_R[BASE64_R_SIZE], b64_MAC[BASE64_MAC_SIZE];
 
 	if(0 != read_inputfile(input_file, &abe_blob64))
 		return FENC_ERROR_INVALID_CIPHERTEXT;
@@ -126,7 +131,7 @@ FENC_ERROR search_inputfile(char *input_file, char *index_file, fenc_context *co
 	free(abe_blob64);
 
 	/* Match ciphertext. */
-	result = libfenc_match_KSFCP(context, &ciphertext, trapdoor, Q);
+	result = libfenc_match_KSFCP(context, &ciphertext, trapdoor, Q, &HK);
 	report_error("Matching ciphertext", result);
 
 	if(result != FENC_ERROR_NONE){
@@ -134,6 +139,52 @@ FENC_ERROR search_inputfile(char *input_file, char *index_file, fenc_context *co
 	}
 
 	/* Keyword Search ciphertext. */
+
+	result = FENC_ERROR_INVALID_INPUT;
+
+	/* export HK */
+	libfenc_export_KSF_HK_KSFCP(&context, &HK, HK_buf, SIZE, &HK_buf_len);
+#ifdef DEBUG
+	debug("HK: ");
+	print_buffer_as_hex(HK_buf, HK_buf_len);
+#endif
+
+	int num_index = 0;
+	size_t serialized_len;
+
+	fp = fopen(index_file, "r");
+
+	fscanf(fp, "SIZE:%d|", &num_index);
+
+	for(i=0; i<num_index; i++){
+		fread(b64_R, sizeof(uint8), BASE64_R_SIZE, fp);
+		char *R = NewBase64Decode((const char *) b64_R, BASE64_R_SIZE, &serialized_len);
+
+		uint8 *digest = HMAC(EVP_sha1(), HK_buf, HK_buf_len, R, R_SIZE, NULL, NULL);
+
+		fread(b64_MAC, sizeof(uint8), BASE64_MAC_SIZE, fp);
+		char *MAC = NewBase64Decode((const char *) b64_MAC, BASE64_MAC_SIZE, &serialized_len);
+#ifdef DEBUG
+		debug("Matching index %d\n", i);
+		debug("digest: ");
+		print_buffer_as_hex(digest, MAC_SIZE);
+		debug("MAC: ");
+		print_buffer_as_hex(MAC, MAC_SIZE);
+#endif
+		if(0 == strncmp(digest, MAC, MAC_SIZE)){
+			/* matched */
+			result = FENC_ERROR_NONE;
+			debug("Matched CT file: %s\n", input_file);
+		}
+
+		free(digest);
+		free(R);
+		free(MAC);
+
+		if(result == FENC_ERROR_NONE) break;
+	}
+
+	fclose(fp);
 
 cleanup:
 	//ciphertext
@@ -229,11 +280,6 @@ int search(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, char *p
 			uint8 *bin_trapdoor_buf = NewBase64Decode((const char *) trapdoor_buf, trapdoor_len, &bin_trapdoor_len);
 			free(trapdoor_buf);
 
-			/* base-64 decode user's trapdoor */
-			debug("Base-64 decoded buffer:\t");
-#ifdef DEBUG
-			print_buffer_as_hex(bin_trapdoor_buf, bin_trapdoor_len);
-#endif
 			result = libfenc_import_trapdoor_KSFCP(&context, &trapdoor, bin_trapdoor_buf, bin_trapdoor_len);
 			report_error("Importing trapdoor", result);
 
@@ -263,7 +309,7 @@ int search(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, char *p
 
 		char Q_file[MAX_PATH_SIZE];
 		memset(Q_file, 0, MAX_PATH_SIZE);
-		strcat(Q_file, input_file);
+		strcpy(Q_file, input_file);
 		strcat(Q_file, ".Q");
 
 		if(search_result == FENC_ERROR_NONE){
