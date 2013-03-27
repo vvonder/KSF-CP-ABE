@@ -2586,3 +2586,84 @@ libfenc_export_KSF_HK_KSFCP(fenc_context *context, fenc_KSF_HK_KSFCP *HK, uint8 
 cleanup:
 	return err_code;
 }
+
+FENC_ERROR
+libfenc_quick_decrypt_KSFCP(fenc_context *context, fenc_ciphertext *ciphertext, fenc_key *key, fenc_USK_KSFCP *usk, fenc_Q_KSFCP *Q,
+										 fenc_plaintext *plaintext)
+{
+	FENC_ERROR						result = FENC_ERROR_UNKNOWN, err_code;
+	fenc_ciphertext_KSFCP			ciphertext_KSFCP;
+	fenc_scheme_context_KSFCP		*scheme_context = NULL;
+	fenc_key_KSFCP					*key_KSFCP = NULL;
+	element_t						tempGT, temp2GT, temp3GT, tempZ, prodT;
+	Bool							elements_initialized = FALSE;
+
+	/* Get the scheme-specific context. */
+	scheme_context = (fenc_scheme_context_KSFCP*)context->scheme_context;
+	if (scheme_context == NULL) {
+		return FENC_ERROR_INVALID_CONTEXT;
+	}
+	/* Obtain the KSFCP-specific key data structure and make sure it's correct.	*/
+	if (key->scheme_key == NULL) {
+		LOG_ERROR("%s: could not obtain scheme-specific decryption key", __func__);
+		return FENC_ERROR_INVALID_KEY;
+	}
+	key_KSFCP = (fenc_key_KSFCP*)key->scheme_key;
+
+	/* Deserialize the ciphertext.	*/
+	err_code = libfenc_deserialize_ciphertext_KSFCP(ciphertext->data, ciphertext->data_len, &ciphertext_KSFCP, scheme_context);
+	if (err_code != FENC_ERROR_NONE) {
+		LOG_ERROR("%s: unable to deserialize ciphertext", __func__);
+		result = err_code;
+		goto cleanup;
+	}
+
+	/* Allocate some temporary work variables.	*/
+	elements_initialized = TRUE;
+	element_init_GT(tempGT, scheme_context->global_params->pairing);
+	element_init_GT(temp2GT, scheme_context->global_params->pairing);
+	element_init_GT(temp3GT, scheme_context->global_params->pairing);
+	element_init_GT(prodT, scheme_context->global_params->pairing);
+	element_init_Zr(tempZ, scheme_context->global_params->pairing);
+
+	/* Now compute tempGT = e(CprimeONE, KTWO).	*/
+	pairing_apply(tempGT, ciphertext_KSFCP.CprimeONE, key_KSFCP->KTWO, scheme_context->global_params->pairing);
+
+	/* Now compute temp2GT = QeggT^(1/uZ).	*/
+	element_invert(tempZ, usk->uZ);
+	element_pow_zn(temp2GT, Q->QeggT, tempZ);
+
+	/* Now compute prodT =  e(CprimeONE, KTWO) / QeggT^(1/uZ).	*/
+	element_invert(temp3GT, temp2GT);
+	element_mul(prodT, tempGT, temp3GT);
+
+	/* Finally, hash this result to obtain the KEM decryption.	Full encryption is for the future.	*/
+	if (ciphertext_KSFCP.type == FENC_CIPHERTEXT_TYPE_KEM_CPA) {
+		/* If its a KEM, hash prodT and that's the resulting session key.	*/
+		err_code = derive_session_key_from_element(plaintext, prodT, ciphertext_KSFCP.kem_key_len, scheme_context->global_params->pairing);
+		if (err_code != FENC_ERROR_NONE) {
+			result = err_code;
+			goto cleanup;
+		}
+	} else {
+		LOG_ERROR("%s: only KEM mode is supported at this point", __func__);
+		result = FENC_ERROR_NOT_IMPLEMENTED;
+		goto cleanup;
+	}
+
+	/* Success!	*/
+	result = FENC_ERROR_NONE;
+
+cleanup:
+
+	/* Clear temporary variables.	*/
+	if (elements_initialized == TRUE) {
+		element_clear(prodT);
+		element_clear(tempGT);
+		element_clear(temp2GT);
+		element_clear(temp3GT);
+		element_clear(tempZ);
+	}
+
+	return result;
+}
