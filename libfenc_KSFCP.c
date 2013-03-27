@@ -2198,7 +2198,7 @@ cleanup:
 	/* clean up here */
 	free(attribute_list);
 	/* Return success. */
-	return FENC_ERROR_NONE;
+	return err_code;
 }
 
 FENC_ERROR

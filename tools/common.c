@@ -9,7 +9,7 @@ void print_buffer_as_hex(uint8* data, size_t len)
 {
 #ifdef DEBUG
 	size_t i;
-	
+
 	for (i = 0; i < len; i++) {
 		printf("%02x ", data[i]);
 	}
@@ -18,7 +18,7 @@ void print_buffer_as_hex(uint8* data, size_t len)
 }
 
 ssize_t read_file(FILE *f, char** out) {
-	
+
 	ssize_t MAX_LEN = SIZE_MAX * 4;
 	if(f != NULL) {
 		/* See how big the file is */
@@ -41,7 +41,7 @@ ssize_t read_file(FILE *f, char** out) {
 int ret_num_bits(int value1)
 {
 	int j;
-	
+
 	for(j = 0; j < BITS; j++) {
 		if(value1 < pow(2,j)) {
 			double x = (double)j;
@@ -52,4 +52,19 @@ int ret_num_bits(int value1)
 		}
 	}
 	return 0;
+}
+
+
+char *freadline(char *str, int num, FILE *stream)
+{
+	int len = 0;
+	char *result = fgets(str, num, stream);
+	if(result != NULL){
+		len = strlen(str);
+		while(len>0 && str[len-1] == '\r' || str[len-1] == '\n'){
+			str[len-1] = '\0';
+			len--;
+		}
+	}
+	return result;
 }

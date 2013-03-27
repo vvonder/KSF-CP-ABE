@@ -41,6 +41,7 @@ typedef enum Scheme SchemeType;
 /* for KSF */
 #define R_SIZE 20
 #define MAC_SIZE 20
+#define MAX_PATH_SIZE 256
 
 #define PARAM "d224.param"
 #define MAGIC "ABE|"
@@ -58,5 +59,6 @@ void report_error(char* action, FENC_ERROR result);
 ssize_t read_file(FILE *f, char** out);
 void print_help(void);
 void print_buffer_as_hex(uint8* data, size_t len);
+char *freadline(char *str, int num, FILE *stream);
 
 #endif

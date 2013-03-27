@@ -20,7 +20,6 @@ char *attribute_string = NULL, *policy_string = NULL;
 int abe_encrypt(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, char *data, char *enc_file, int isXML, char *ext, char *keyword_file, char *index_file);
 int abe_encrypt_from_file(FENC_SCHEME_TYPE scheme, char *key_string, char *g_params, char *public_params, char *data_file, char *enc_file, int isXML, char *ext, char *keyword_file, char *index_file);
 fenc_attribute_policy *construct_test_policy();
-char *freadline(char *str, int num, FILE *stream);
 
 /* Description: mgabe-keygen takes the outfile to write the users keys, and the .
 
@@ -461,17 +460,4 @@ int build_index(fenc_context *pcontext, char *keyword_file, char *index_file)
 	return 0;
 }
 
-char *freadline(char *str, int num, FILE *stream)
-{
-	int len = 0;
-	char *result = fgets(str, num, stream);
-	if(result != NULL){
-		len = strlen(str);
-		while(len>0 && str[len-1] == '\r' || str[len-1] == '\n'){
-			str[len-1] = '\0';
-			len--;
-		}
-	}
-	return result;
-}
 
