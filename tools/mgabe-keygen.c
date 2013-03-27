@@ -296,6 +296,10 @@ int generate_keys(char *outfile, FENC_SCHEME_TYPE scheme, char *g_params, char *
 cleanup:
 	fenc_func_input_clear(&func_object_input);
 
+	free(bin_public_buf);
+	free(bin_secret_buf);
+	free(secret_key_buf);
+
 	/* Destroy the context. */
 	result = libfenc_destroy_context(&context);
 	report_error("Destroying context", result);

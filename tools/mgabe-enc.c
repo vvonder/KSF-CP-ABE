@@ -369,6 +369,8 @@ int abe_encrypt(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, ch
 		}
 	}
 
+	free(bin_public_buf);
+
 	/* Destroy the context. */
 	result = libfenc_destroy_context(&context);
 	report_error("Destroying the encryption context", result);

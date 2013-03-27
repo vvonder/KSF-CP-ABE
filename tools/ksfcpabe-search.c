@@ -285,7 +285,7 @@ int search(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, char *p
 
 			result = libfenc_import_trapdoor_KSFCP(&context, &trapdoor, bin_trapdoor_buf, bin_trapdoor_len);
 			report_error("Importing trapdoor", result);
-
+			free(bin_public_buf);
 		}
 	}
 	else {
@@ -340,6 +340,7 @@ int search(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, char *p
 
 	/* free allocated memory */
 	//trapdoor
+	free(bin_public_buf);
 
 	/* Destroy the context. */
 	result = libfenc_destroy_context(&context);

@@ -145,7 +145,7 @@ cleanup:
 	result = libfenc_shutdown();
 	report_error("Shutting down library", result);
 
-	free(public_params_buf);
+	free(bin_public_buf);
 	free(uskBuffer);
 	free(upkBuffer);
 	free(b64_usk_buf);

@@ -79,7 +79,7 @@ int generate_trapdoor(FENC_SCHEME_TYPE scheme, char *g_params, char *public_para
 
 	/* stores the user's private key */
 	memset(&sk, 0, sizeof(fenc_key));
-	/* stores the user's UPK key */
+	/* stores the user's USK key */
 	memset(&usk, 0, sizeof(fenc_USK_KSFCP));
 	/* stores the user's KSF key */
 	memset(&ksfkey, 0, sizeof(fenc_KSF_key_KSFCP));
@@ -242,5 +242,10 @@ cleanup:
 
 	/* free buffer */
 	free(buffer);
+	free(bin_public_buf);
+	free(bin_sk_buf);
+	free(bin_usk_buf);
+	free(bin_ksfkey_buf);
+	free(trapdoor_buf);
 	return 0;
 }

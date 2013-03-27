@@ -10,7 +10,7 @@
 #define SIZE BUFSIZE
 #define DEC_FILE "decrypted.txt"
 
-Bool abe_decrypt(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, char *inputfile, char *keyfile, char *dec_file);
+Bool abe_quick_decrypt(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, char *input_file, char *key_file, char *usk_file, char *Q_file, char *dec_file);
 void tokenize_inputfile(char* in, char** abe, char** aes, char** iv);
 
 /*
@@ -20,14 +20,18 @@ void tokenize_inputfile(char* in, char** abe, char** aes, char** iv);
 	   and -1 an ERROR with either the input file and/or command line arguments.
  */
 int main (int argc, char *argv[]) {
-	int fflag = FALSE, kflag = FALSE;
-	char *file = "input.txt", *key = "private.key", *public_params = NULL;
-	FENC_SCHEME_TYPE mode = FENC_SCHEME_NONE;
+	int fflag = FALSE, kflag = FALSE, uflag = FALSE, qflag = FALSE;
+	char *public_params = PUBLIC_FILE".ksfcp";
+	char *file = "input.txt";
+	char *key = "userCP.key";
+	char *usk = "USK.ksfcp";
+	char *Q = "outfile.cpabe.Q";
+	FENC_SCHEME_TYPE mode = FENC_SCHEME_KSFCP;
 	int c;
 
 	opterr = 0;
 
-	while ((c = getopt (argc, argv, "m:f:k:h")) != -1) {
+	while ((c = getopt (argc, argv, "f:k:u:q:h")) != -1) {
 
 		switch (c)
 		{
@@ -41,27 +45,15 @@ int main (int argc, char *argv[]) {
 				key = optarg;
 				debug("Private-key file = '%s'\n", key);
 				break;
-			case 'm':
-				if (strcmp(optarg, SCHEME_LSW) == 0) {
-					debug("Decrypting under Lewko-Sahai-Waters KP scheme...\n");
-					mode = FENC_SCHEME_LSW;
-					public_params = PUBLIC_FILE".kp";
-				}
-				else if(strcmp(optarg, SCHEME_WCP) == 0) {
-					debug("Decrypting under Waters CP scheme...\n");
-					mode = FENC_SCHEME_WATERSCP;
-					public_params = PUBLIC_FILE".cp";
-				}
-				else if(strcmp(optarg, SCHEME_WSCP) == 0) {
-					debug("Decrypting under Waters Simple CP scheme...\n");
-					mode = FENC_SCHEME_WATERSSIMPLECP;
-					public_params = PUBLIC_FILE".scp";
-				}
-				else if(strcmp(optarg, SCHEME_KSFCP) == 0) {
-					debug("Decrypting under KSF-CP scheme...\n");
-					mode = FENC_SCHEME_KSFCP;
-					public_params = PUBLIC_FILE".ksfcp";
-				}
+			case 'u': // input of USK
+				uflag = TRUE;
+				usk = optarg;
+				debug("USK-key file = '%s'\n", usk);
+				break;
+			case 'q': // input of Q
+				qflag = TRUE;
+				Q = optarg;
+				debug("Q data file = '%s'\n", Q);
 				break;
 			case 'h': // print usage
 				print_help();
@@ -87,8 +79,8 @@ int main (int argc, char *argv[]) {
 		goto error;
 	}
 
-	if(kflag == FALSE) {
-		fprintf(stderr, "Decrypt without a key? c'mon!\n");
+	if(kflag == FALSE || uflag == FALSE || qflag == FALSE) {
+		fprintf(stderr, "Decrypt without an enough keys? c'mon!\n");
 		goto error;
 	}
 
@@ -96,7 +88,7 @@ int main (int argc, char *argv[]) {
 		fprintf(stderr, "Please specify a scheme type\n");
 		goto error;
 	}
-	return abe_decrypt(mode, PARAM, public_params, file, key, DEC_FILE);
+	return abe_quick_decrypt(mode, PARAM, public_params, file, key, usk, Q, DEC_FILE);
 error:
 	print_help();
 	return -1;
@@ -104,7 +96,7 @@ error:
 
 void print_help(void)
 {
-	printf("Usage: ./abe-dec -m [ KP or CP ] -k [ private-key-file ] -f [ file-to-decrypt ] \n\n");
+	printf("Usage: ./abe-qdec -k [ private-key-file ] -u [ USK-file ] -q [ Q-data-file ] -f [ file-to-decrypt ] \n\n");
 }
 /* This function tokenizes the input file with the
 expected format: "ABE_TOKEN : base-64 : ABE_TOKEN_END :
@@ -145,7 +137,7 @@ void tokenize_inputfile(char* in, char** abe, char** aes, char** iv)
 	}
 }
 
-Bool abe_decrypt(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, char *inputfile, char *keyfile, char *dec_file)
+Bool abe_quick_decrypt(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, char *input_file, char *key_file, char *usk_file, char *Q_file, char *dec_file)
 {
 	FENC_ERROR result;
 	fenc_context context;
@@ -155,12 +147,17 @@ Bool abe_decrypt(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, c
 	fenc_plaintext aes_session_key;
 	pairing_t pairing;
 	fenc_key secret_key;
+	fenc_USK_KSFCP usk;
+	fenc_Q_KSFCP Q;
 	FILE *fp, *dec_fp;
 	char c;
-	int pub_len = 0;
+	size_t pub_len = 0, usk_len = 0, Q_len = 0;
 	size_t serialized_len = 0;
 	char public_params_buf[SIZE];
+	uint8 usk_buf[SIZE];
+	uint8 Q_buf[SIZE];
 	int magic_failed;
+
 	/* Clear data structures. */
 	memset(&context, 0, sizeof(fenc_context));
 	memset(&group_params, 0, sizeof(fenc_group_params));
@@ -168,14 +165,20 @@ Bool abe_decrypt(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, c
 	memset(&ciphertext, 0, sizeof(fenc_ciphertext));
 	memset(&aes_session_key, 0, sizeof(fenc_plaintext));
 	memset(&secret_key, 0, sizeof(fenc_key));
+	memset(&usk, 0, sizeof(fenc_USK_KSFCP));
+	memset(&Q, 0, sizeof(fenc_Q_KSFCP));
+
 	memset(&public_params_buf, 0, SIZE);
+	memset(&usk_buf, 0, SIZE);
+	memset(&Q_buf, 0, SIZE);
+
 	// all this memory must be free'd
 	char *input_buf = NULL, *keyfile_buf = NULL, *output_buf = NULL;
 	char *aes_blob64 = NULL, *abe_blob64 = NULL, *iv_blob64 = NULL;
 	ssize_t input_len, key_len;
 
 	/* Load user's input file */
-	fp = fopen(inputfile, "r");
+	fp = fopen(input_file, "r");
 	if(fp != NULL) {
 		if((input_len = read_file(fp, &input_buf)) > 0) {
 			// printf("Input file: %s\n", input_buf);
@@ -187,7 +190,7 @@ Bool abe_decrypt(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, c
 		}
 	}
 	else {
-		fprintf(stderr, "Could not load input file: %s\n", inputfile);
+		fprintf(stderr, "Could not load input file: %s\n", input_file);
 		return -1;
 	}
 	fclose(fp);
@@ -252,8 +255,8 @@ Bool abe_decrypt(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, c
 	report_error("Importing public parameters", result);
 
 	/* read input key file */ // (PRIVATE KEY)
-	debug("keyfile => '%s'\n", keyfile);
-	fp = fopen(keyfile, "r");
+	debug("key_file => '%s'\n", key_file);
+	fp = fopen(key_file, "r");
 	if(fp != NULL) {
 		if((key_len = read_file(fp, &keyfile_buf)) > 0) {
 			// printf("\nYour private-key:\t'%s'\n", keyfile_buf);
@@ -271,11 +274,60 @@ Bool abe_decrypt(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, c
 		}
 	}
 	else {
-		fprintf(stderr, "Could not load input file: %s\n", keyfile);
+		fprintf(stderr, "Could not load input file: %s\n", key_file);
 		/* clear allocated possibly allocated memory */
 		return -1;
 	}
 	fclose(fp);
+
+	/* read file */
+	fp = fopen(usk_file, "r");
+	if(fp != NULL) {
+		while (TRUE) {
+			c = fgetc(fp);
+			if(c != EOF) {
+				usk_buf[usk_len] = c;
+				usk_len++;
+			}
+			else {
+				break;
+			}
+		}
+	}
+	else {
+		perror("File does not exist.\n");
+		return -1;
+	}
+	fclose(fp);
+
+	uint8 *bin_usk_buf = NewBase64Decode((const char *) usk_buf, usk_len, &serialized_len);
+	result = libfenc_import_usk_KSFCP(&context, &usk, bin_usk_buf, serialized_len);
+	report_error("Importing USK", result);
+
+	/* read file */
+	fp = fopen(Q_file, "r");
+	if(fp != NULL) {
+		while (TRUE) {
+			c = fgetc(fp);
+			if(c != EOF) {
+				Q_buf[Q_len] = c;
+				Q_len++;
+			}
+			else {
+				break;
+			}
+		}
+	}
+	else {
+		perror("File does not exist.\n");
+		return -1;
+	}
+	fclose(fp);
+
+	uint8 *bin_Q_buf = NewBase64Decode((const char *) Q_buf, Q_len, &serialized_len);
+	result = libfenc_import_Q_KSFCP(&context, &Q, bin_Q_buf, serialized_len);
+	report_error("Importing Q", result);
+
 
 	size_t abeLength;
 	uint8 *data = NewBase64Decode((const char *) abe_blob64, strlen(abe_blob64), &abeLength);
@@ -284,7 +336,7 @@ Bool abe_decrypt(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, c
 	ciphertext.max_len = abeLength;
 
 	/* Descrypt the resulting ciphertext. */
-	result = libfenc_decrypt(&context, &ciphertext, &secret_key, &aes_session_key);
+	result = libfenc_quick_decrypt_KSFCP(&context, &ciphertext, &secret_key, &usk, &Q, &aes_session_key);
 	report_error("Decrypting the ciphertext", result);
 	if(result != FENC_ERROR_NONE) {
 		return -1;
@@ -341,6 +393,8 @@ Bool abe_decrypt(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, c
 	free(abe_blob64);
 
 	free(bin_public_buf);
+	free(bin_Q_buf);
+	free(bin_usk_buf);
 
 	/* Destroy the context. */
 	result = libfenc_destroy_context(&context);

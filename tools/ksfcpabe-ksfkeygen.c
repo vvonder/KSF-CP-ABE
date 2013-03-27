@@ -213,5 +213,11 @@ cleanup:
 
 	/* free buffer */
 	free(buffer);
+	free(bin_public_buf);
+	free(bin_secret_buf);
+	free(bin_sk_buf);
+	free(bin_upk_buf);
+	free(ksf_key_buf);
+
 	return 0;
 }

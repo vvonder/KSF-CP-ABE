@@ -43,7 +43,8 @@ build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = abe-setup$(EXEEXT) abe-keygen$(EXEEXT) abe-enc$(EXEEXT) \
 	abe-dec$(EXEEXT) policy-test$(EXEEXT) abe-ukeygen$(EXEEXT) \
-	ksf-keygen$(EXEEXT) ksf-trapdoor$(EXEEXT) ksf-search$(EXEEXT)
+	ksf-keygen$(EXEEXT) ksf-trapdoor$(EXEEXT) ksf-search$(EXEEXT) \
+	abe-qdec$(EXEEXT)
 subdir = tools
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in ChangeLog \
 	INSTALL config.sub depcomp install-sh missing
@@ -99,6 +100,12 @@ libabe_keygen_la_OBJECTS = $(am_libabe_keygen_la_OBJECTS)
 libabe_keygen_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(libabe_keygen_la_LDFLAGS) $(LDFLAGS) -o $@
+libabe_qdec_la_DEPENDENCIES = ../libfenc.la
+am_libabe_qdec_la_OBJECTS = ksfcpabe-qdec.lo base64.lo common.lo
+libabe_qdec_la_OBJECTS = $(am_libabe_qdec_la_OBJECTS)
+libabe_qdec_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(libabe_qdec_la_LDFLAGS) $(LDFLAGS) -o $@
 libabe_setup_la_DEPENDENCIES = ../libfenc.la
 am_libabe_setup_la_OBJECTS = mgabe-setup.lo base64.lo common.lo
 libabe_setup_la_OBJECTS = $(am_libabe_setup_la_OBJECTS)
@@ -162,6 +169,14 @@ abe_keygen_DEPENDENCIES = ../libfenc.la
 abe_keygen_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(abe_keygen_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_abe_qdec_OBJECTS = abe_qdec-ksfcpabe-qdec.$(OBJEXT) \
+	abe_qdec-base64.$(OBJEXT) abe_qdec-common.$(OBJEXT)
+abe_qdec_OBJECTS = $(am_abe_qdec_OBJECTS)
+abe_qdec_LDADD = $(LDADD)
+abe_qdec_DEPENDENCIES = ../libfenc.la
+abe_qdec_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=link $(CCLD) $(abe_qdec_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
 am_abe_setup_OBJECTS = abe_setup-mgabe-setup.$(OBJEXT) \
 	abe_setup-base64.$(OBJEXT) abe_setup-common.$(OBJEXT)
 abe_setup_OBJECTS = $(am_abe_setup_OBJECTS)
@@ -224,20 +239,22 @@ LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 SOURCES = $(libabe_dec_la_SOURCES) $(libabe_enc_la_SOURCES) \
-	$(libabe_keygen_la_SOURCES) $(libabe_setup_la_SOURCES) \
-	$(libabe_ukeygen_la_SOURCES) $(libksf_keygen_la_SOURCES) \
-	$(libksf_search_la_SOURCES) $(libksf_trapdoor_la_SOURCES) \
-	$(libpolicy_test_la_SOURCES) $(abe_dec_SOURCES) \
-	$(abe_enc_SOURCES) $(abe_keygen_SOURCES) $(abe_setup_SOURCES) \
+	$(libabe_keygen_la_SOURCES) $(libabe_qdec_la_SOURCES) \
+	$(libabe_setup_la_SOURCES) $(libabe_ukeygen_la_SOURCES) \
+	$(libksf_keygen_la_SOURCES) $(libksf_search_la_SOURCES) \
+	$(libksf_trapdoor_la_SOURCES) $(libpolicy_test_la_SOURCES) \
+	$(abe_dec_SOURCES) $(abe_enc_SOURCES) $(abe_keygen_SOURCES) \
+	$(abe_qdec_SOURCES) $(abe_setup_SOURCES) \
 	$(abe_ukeygen_SOURCES) $(ksf_keygen_SOURCES) \
 	$(ksf_search_SOURCES) $(ksf_trapdoor_SOURCES) \
 	$(policy_test_SOURCES)
 DIST_SOURCES = $(libabe_dec_la_SOURCES) $(libabe_enc_la_SOURCES) \
-	$(libabe_keygen_la_SOURCES) $(libabe_setup_la_SOURCES) \
-	$(libabe_ukeygen_la_SOURCES) $(libksf_keygen_la_SOURCES) \
-	$(libksf_search_la_SOURCES) $(libksf_trapdoor_la_SOURCES) \
-	$(libpolicy_test_la_SOURCES) $(abe_dec_SOURCES) \
-	$(abe_enc_SOURCES) $(abe_keygen_SOURCES) $(abe_setup_SOURCES) \
+	$(libabe_keygen_la_SOURCES) $(libabe_qdec_la_SOURCES) \
+	$(libabe_setup_la_SOURCES) $(libabe_ukeygen_la_SOURCES) \
+	$(libksf_keygen_la_SOURCES) $(libksf_search_la_SOURCES) \
+	$(libksf_trapdoor_la_SOURCES) $(libpolicy_test_la_SOURCES) \
+	$(abe_dec_SOURCES) $(abe_enc_SOURCES) $(abe_keygen_SOURCES) \
+	$(abe_qdec_SOURCES) $(abe_setup_SOURCES) \
 	$(abe_ukeygen_SOURCES) $(ksf_keygen_SOURCES) \
 	$(ksf_search_SOURCES) $(ksf_trapdoor_SOURCES) \
 	$(policy_test_SOURCES)
@@ -428,6 +445,7 @@ abe_ukeygen_SOURCES = ksfcpabe-ukeygen.c base64.c common.c
 ksf_keygen_SOURCES = ksfcpabe-ksfkeygen.c base64.c common.c
 ksf_trapdoor_SOURCES = ksfcpabe-trapdoor.c base64.c common.c
 ksf_search_SOURCES = ksfcpabe-search.c base64.c common.c
+abe_qdec_SOURCES = ksfcpabe-qdec.c base64.c common.c
 abe_setup_CFLAGS = $(AM_CFLAGS)
 abe_keygen_CFLAGS = $(AM_CFLAGS)
 abe_enc_CFLAGS = $(AM_CFLAGS)
@@ -437,7 +455,8 @@ abe_ukeygen_CFLAGS = $(AM_CFLAGS)
 ksf_keygen_CFLAGS = $(AM_CFLAGS)
 ksf_trapdoor_CFLAGS = $(AM_CFLAGS)
 ksf_search_CFLAGS = $(AM_CFLAGS)
-lib_LTLIBRARIES = libabe-setup.la libabe-keygen.la libabe-enc.la libabe-dec.la libpolicy-test.la libabe-ukeygen.la libksf-keygen.la libksf-trapdoor.la libksf-search.la
+abe_qdec_CFLAGS = $(AM_CFLAGS)
+lib_LTLIBRARIES = libabe-setup.la libabe-keygen.la libabe-enc.la libabe-dec.la libpolicy-test.la libabe-ukeygen.la libksf-keygen.la libksf-trapdoor.la libksf-search.la libabe-qdec.la
 libabe_setup_la_SOURCES = mgabe-setup.c base64.c base64.h \
 		    common.c common.h
 
@@ -449,6 +468,7 @@ libabe_ukeygen_la_SOURCES = ksfcpabe-ukeygen.c base64.c common.c
 libksf_keygen_la_SOURCES = ksfcpabe-ksfkeygen.c base64.c common.c
 libksf_trapdoor_la_SOURCES = ksfcpabe-trapdoor.c base64.c common.c
 libksf_search_la_SOURCES = ksfcpabe-search.c base64.c common.c
+libabe_qdec_la_SOURCES = ksfcpabe-qdec.c base64.c common.c
 libabe_setup_la_LIBADD = ../libfenc.la
 libabe_keygen_la_LIBADD = ../libfenc.la
 libabe_enc_la_LIBADD = ../libfenc.la
@@ -458,6 +478,7 @@ libabe_ukeygen_la_LIBADD = ../libfenc.la
 libksf_keygen_la_LIBADD = ../libfenc.la
 libksf_trapdoor_la_LIBADD = ../libfenc.la
 libksf_search_la_LIBADD = ../libfenc.la
+libabe_qdec_la_LIBADD = ../libfenc.la
 COMMON_LDFLAGS = -no-undefined
 libabe_setup_la_LDFLAGS = $(COMMON_LDFLAGS)
 libabe_keygen_la_LDFLAGS = $(COMMON_LDFLAGS)
@@ -468,6 +489,7 @@ libabe_ukeygen_la_LDFLAGS = $(COMMON_LDFLAGS)
 libksf_keygen_la_LDFLAGS = $(COMMON_LDFLAGS)
 libksf_trapdoor_la_LDFLAGS = $(COMMON_LDFLAGS)
 libksf_search_la_LDFLAGS = $(COMMON_LDFLAGS)
+libabe_qdec_la_LDFLAGS = $(COMMON_LDFLAGS)
 all: all-recursive
 
 .SUFFIXES:
@@ -539,6 +561,8 @@ libabe-enc.la: $(libabe_enc_la_OBJECTS) $(libabe_enc_la_DEPENDENCIES)
 	$(libabe_enc_la_LINK) -rpath $(libdir) $(libabe_enc_la_OBJECTS) $(libabe_enc_la_LIBADD) $(LIBS)
 libabe-keygen.la: $(libabe_keygen_la_OBJECTS) $(libabe_keygen_la_DEPENDENCIES) 
 	$(libabe_keygen_la_LINK) -rpath $(libdir) $(libabe_keygen_la_OBJECTS) $(libabe_keygen_la_LIBADD) $(LIBS)
+libabe-qdec.la: $(libabe_qdec_la_OBJECTS) $(libabe_qdec_la_DEPENDENCIES) 
+	$(libabe_qdec_la_LINK) -rpath $(libdir) $(libabe_qdec_la_OBJECTS) $(libabe_qdec_la_LIBADD) $(LIBS)
 libabe-setup.la: $(libabe_setup_la_OBJECTS) $(libabe_setup_la_DEPENDENCIES) 
 	$(libabe_setup_la_LINK) -rpath $(libdir) $(libabe_setup_la_OBJECTS) $(libabe_setup_la_LIBADD) $(LIBS)
 libabe-ukeygen.la: $(libabe_ukeygen_la_OBJECTS) $(libabe_ukeygen_la_DEPENDENCIES) 
@@ -603,6 +627,9 @@ abe-enc$(EXEEXT): $(abe_enc_OBJECTS) $(abe_enc_DEPENDENCIES)
 abe-keygen$(EXEEXT): $(abe_keygen_OBJECTS) $(abe_keygen_DEPENDENCIES) 
 	@rm -f abe-keygen$(EXEEXT)
 	$(abe_keygen_LINK) $(abe_keygen_OBJECTS) $(abe_keygen_LDADD) $(LIBS)
+abe-qdec$(EXEEXT): $(abe_qdec_OBJECTS) $(abe_qdec_DEPENDENCIES) 
+	@rm -f abe-qdec$(EXEEXT)
+	$(abe_qdec_LINK) $(abe_qdec_OBJECTS) $(abe_qdec_LDADD) $(LIBS)
 abe-setup$(EXEEXT): $(abe_setup_OBJECTS) $(abe_setup_DEPENDENCIES) 
 	@rm -f abe-setup$(EXEEXT)
 	$(abe_setup_LINK) $(abe_setup_OBJECTS) $(abe_setup_LDADD) $(LIBS)
@@ -637,6 +664,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/abe_keygen-base64.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/abe_keygen-common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/abe_keygen-mgabe-keygen.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/abe_qdec-base64.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/abe_qdec-common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/abe_qdec-ksfcpabe-qdec.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/abe_setup-base64.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/abe_setup-common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/abe_setup-mgabe-setup.Po@am__quote@
@@ -655,6 +685,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ksf_trapdoor-common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ksf_trapdoor-ksfcpabe-trapdoor.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ksfcpabe-ksfkeygen.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ksfcpabe-qdec.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ksfcpabe-search.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ksfcpabe-trapdoor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ksfcpabe-ukeygen.Plo@am__quote@
@@ -812,6 +843,48 @@ abe_keygen-common.obj: common.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='common.c' object='abe_keygen-common.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(abe_keygen_CFLAGS) $(CFLAGS) -c -o abe_keygen-common.obj `if test -f 'common.c'; then $(CYGPATH_W) 'common.c'; else $(CYGPATH_W) '$(srcdir)/common.c'; fi`
+
+abe_qdec-ksfcpabe-qdec.o: ksfcpabe-qdec.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(abe_qdec_CFLAGS) $(CFLAGS) -MT abe_qdec-ksfcpabe-qdec.o -MD -MP -MF $(DEPDIR)/abe_qdec-ksfcpabe-qdec.Tpo -c -o abe_qdec-ksfcpabe-qdec.o `test -f 'ksfcpabe-qdec.c' || echo '$(srcdir)/'`ksfcpabe-qdec.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/abe_qdec-ksfcpabe-qdec.Tpo $(DEPDIR)/abe_qdec-ksfcpabe-qdec.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ksfcpabe-qdec.c' object='abe_qdec-ksfcpabe-qdec.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(abe_qdec_CFLAGS) $(CFLAGS) -c -o abe_qdec-ksfcpabe-qdec.o `test -f 'ksfcpabe-qdec.c' || echo '$(srcdir)/'`ksfcpabe-qdec.c
+
+abe_qdec-ksfcpabe-qdec.obj: ksfcpabe-qdec.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(abe_qdec_CFLAGS) $(CFLAGS) -MT abe_qdec-ksfcpabe-qdec.obj -MD -MP -MF $(DEPDIR)/abe_qdec-ksfcpabe-qdec.Tpo -c -o abe_qdec-ksfcpabe-qdec.obj `if test -f 'ksfcpabe-qdec.c'; then $(CYGPATH_W) 'ksfcpabe-qdec.c'; else $(CYGPATH_W) '$(srcdir)/ksfcpabe-qdec.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/abe_qdec-ksfcpabe-qdec.Tpo $(DEPDIR)/abe_qdec-ksfcpabe-qdec.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ksfcpabe-qdec.c' object='abe_qdec-ksfcpabe-qdec.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(abe_qdec_CFLAGS) $(CFLAGS) -c -o abe_qdec-ksfcpabe-qdec.obj `if test -f 'ksfcpabe-qdec.c'; then $(CYGPATH_W) 'ksfcpabe-qdec.c'; else $(CYGPATH_W) '$(srcdir)/ksfcpabe-qdec.c'; fi`
+
+abe_qdec-base64.o: base64.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(abe_qdec_CFLAGS) $(CFLAGS) -MT abe_qdec-base64.o -MD -MP -MF $(DEPDIR)/abe_qdec-base64.Tpo -c -o abe_qdec-base64.o `test -f 'base64.c' || echo '$(srcdir)/'`base64.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/abe_qdec-base64.Tpo $(DEPDIR)/abe_qdec-base64.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='base64.c' object='abe_qdec-base64.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(abe_qdec_CFLAGS) $(CFLAGS) -c -o abe_qdec-base64.o `test -f 'base64.c' || echo '$(srcdir)/'`base64.c
+
+abe_qdec-base64.obj: base64.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(abe_qdec_CFLAGS) $(CFLAGS) -MT abe_qdec-base64.obj -MD -MP -MF $(DEPDIR)/abe_qdec-base64.Tpo -c -o abe_qdec-base64.obj `if test -f 'base64.c'; then $(CYGPATH_W) 'base64.c'; else $(CYGPATH_W) '$(srcdir)/base64.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/abe_qdec-base64.Tpo $(DEPDIR)/abe_qdec-base64.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='base64.c' object='abe_qdec-base64.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(abe_qdec_CFLAGS) $(CFLAGS) -c -o abe_qdec-base64.obj `if test -f 'base64.c'; then $(CYGPATH_W) 'base64.c'; else $(CYGPATH_W) '$(srcdir)/base64.c'; fi`
+
+abe_qdec-common.o: common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(abe_qdec_CFLAGS) $(CFLAGS) -MT abe_qdec-common.o -MD -MP -MF $(DEPDIR)/abe_qdec-common.Tpo -c -o abe_qdec-common.o `test -f 'common.c' || echo '$(srcdir)/'`common.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/abe_qdec-common.Tpo $(DEPDIR)/abe_qdec-common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='common.c' object='abe_qdec-common.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(abe_qdec_CFLAGS) $(CFLAGS) -c -o abe_qdec-common.o `test -f 'common.c' || echo '$(srcdir)/'`common.c
+
+abe_qdec-common.obj: common.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(abe_qdec_CFLAGS) $(CFLAGS) -MT abe_qdec-common.obj -MD -MP -MF $(DEPDIR)/abe_qdec-common.Tpo -c -o abe_qdec-common.obj `if test -f 'common.c'; then $(CYGPATH_W) 'common.c'; else $(CYGPATH_W) '$(srcdir)/common.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/abe_qdec-common.Tpo $(DEPDIR)/abe_qdec-common.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='common.c' object='abe_qdec-common.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(abe_qdec_CFLAGS) $(CFLAGS) -c -o abe_qdec-common.obj `if test -f 'common.c'; then $(CYGPATH_W) 'common.c'; else $(CYGPATH_W) '$(srcdir)/common.c'; fi`
 
 abe_setup-mgabe-setup.o: mgabe-setup.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(abe_setup_CFLAGS) $(CFLAGS) -MT abe_setup-mgabe-setup.o -MD -MP -MF $(DEPDIR)/abe_setup-mgabe-setup.Tpo -c -o abe_setup-mgabe-setup.o `test -f 'mgabe-setup.c' || echo '$(srcdir)/'`mgabe-setup.c
