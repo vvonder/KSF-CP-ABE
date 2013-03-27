@@ -2037,9 +2037,7 @@ libfenc_gen_trapdoor_KSFCP(fenc_context *context, fenc_key *key, fenc_KSF_key_KS
 	}
 	key_KSFCP = (fenc_key_KSFCP*)key->scheme_key;
 
-	trapdoor->num_components = key_KSFCP->num_components;
-
-	err_code = fenc_trapdoor_KSFCP_initialize(trapdoor, &(key_KSFCP->attribute_list), trapdoor->num_components, scheme_context->global_params);
+	err_code = fenc_trapdoor_KSFCP_initialize(trapdoor, &(key_KSFCP->attribute_list), scheme_context->global_params);
 	if(err_code != FENC_ERROR_NONE) return err_code;
 
 	element_pow_zn(trapdoor->TgammaTWO, ksfkey->KgammaTWO, usk->uZ); /* T_gamma = K_gamma^u */
@@ -2060,7 +2058,7 @@ libfenc_gen_trapdoor_KSFCP(fenc_context *context, fenc_key *key, fenc_KSF_key_KS
 	element_mul(trapdoor->TbetaTWO, tempTWO, temp2TWO); /* T_beta = K_beta^u * H(W) */
 
 	/* Compute K'_x = K_x^u */
-	for (i = 0; i < key_KSFCP->num_components; i++) {
+	for (i = 0; i < trapdoor->num_components; i++) {
 		element_pow_zn(trapdoor->KXprimeONE[i], key_KSFCP->KXONE[i], usk->uZ);
 	}
 
@@ -2089,7 +2087,7 @@ cleanup:
 }
 
 FENC_ERROR
-fenc_trapdoor_KSFCP_initialize(fenc_trapdoor_KSFCP *trapdoor, fenc_attribute_list *attribute_list, size_t num_components, fenc_global_params_KSFCP *global_params)
+fenc_trapdoor_KSFCP_initialize(fenc_trapdoor_KSFCP *trapdoor, fenc_attribute_list *attribute_list, fenc_global_params_KSFCP *global_params)
 {
 	FENC_ERROR					result = FENC_ERROR_UNKNOWN, err_code = FENC_ERROR_NONE;
 	size_t i;
@@ -2113,7 +2111,9 @@ fenc_trapdoor_KSFCP_initialize(fenc_trapdoor_KSFCP *trapdoor, fenc_attribute_lis
 		}
 	}
 */
-	for (i = 0; i < num_components; i++) {
+	trapdoor->num_components = attribute_list->num_attributes;
+
+	for (i = 0; i < trapdoor->num_components; i++) {
 		element_init_G1(trapdoor->KXprimeONE[i], global_params->pairing);
 	}
 
@@ -2121,6 +2121,7 @@ fenc_trapdoor_KSFCP_initialize(fenc_trapdoor_KSFCP *trapdoor, fenc_attribute_lis
 	element_init_G2(trapdoor->TTWO, global_params->pairing);
 	element_init_G2(trapdoor->TbetaTWO, global_params->pairing);
 	element_init_G2(trapdoor->TgammaTWO, global_params->pairing);
+
 
 	/* Success!		*/
 	result = FENC_ERROR_NONE;
@@ -2162,9 +2163,7 @@ libfenc_import_trapdoor_KSFCP(fenc_context *context, fenc_trapdoor_KSFCP *trapdo
 		goto cleanup;
 	}
 
-	trapdoor->num_components = num_components;
-
-	err_code = fenc_trapdoor_KSFCP_initialize(trapdoor, attribute_list, trapdoor->num_components, scheme_context->global_params);
+	err_code = fenc_trapdoor_KSFCP_initialize(trapdoor, attribute_list, scheme_context->global_params);
 	if(err_code != FENC_ERROR_NONE) return err_code;
 
 	buf_ptr = buffer + result_len;
@@ -2360,9 +2359,6 @@ libfenc_match_KSFCP(fenc_context *context, fenc_ciphertext *ciphertext, fenc_tra
 		goto cleanup;
 	}
 
-#ifdef FENC_DEBUG
-//	libfenc_fprint_ciphertext_KSFCP(&ciphertext_KSFCP, stdout);
-#endif
 	/* Now deserialize the policy string into a data structure and make sure all attributes are hashed.	*/
 	err_code = fenc_policy_from_string(&policy, ciphertext_KSFCP.policy_str);
 	if(err_code != FENC_ERROR_NONE) {
@@ -2371,11 +2367,6 @@ libfenc_match_KSFCP(fenc_context *context, fenc_ciphertext *ciphertext, fenc_tra
 		goto cleanup;
 	}
 
-#ifdef FENC_DEBUG
-//	strcpy(test_str, "");
-//	fenc_attribute_policy_to_string(policy.root, test_str, MAX_POLICY_STR);
-//	printf("PARSED ATTRIBUTE STRING: %s\n", test_str);
-#endif
 	err_code = attribute_tree_compute_hashes(policy.root, scheme_context->global_params->pairing);
 
 	//libfenc_fprint_ciphertext_KSFCP(&ciphertext_KSFCP, stdout);
@@ -2468,17 +2459,21 @@ libfenc_match_KSFCP(fenc_context *context, fenc_ciphertext *ciphertext, fenc_tra
 	element_init_GT(Q->QeggT, scheme_context->global_params->pairing);
 	element_set(Q->QeggT, prodT);
 
-	/* Compute A = prodT = e(CprimeONE, TgammaTWO) / prodT.	*/
+	/* Compute A = prodT = e(CprimeONE, TgammaTWO) / QeggT.	*/
 	pairing_apply(tempGT, ciphertext_KSFCP.CprimeONE, trapdoor->TgammaTWO, scheme_context->global_params->pairing);
 	element_invert(temp2GT, prodT);
 	element_mul(prodT, tempGT, temp2GT);
 
 	/* Compute B = tempGT = e(CgammaOne, TTWO) */
-	pairing_apply(tempGT, ciphertext_KSFCP.CgammaONE, trapdoor->TgammaTWO, scheme_context->global_params->pairing);
+	pairing_apply(tempGT, ciphertext_KSFCP.CgammaONE, trapdoor->TTWO, scheme_context->global_params->pairing);
 
+#ifdef DEBUG
+	element_printf("A: %B\n", prodT);
+	element_printf("B: %B\n", tempGT);
+#endif
 	/* Compare A and B */
-	if(!element_cmp(prodT, tempGT)){
-		result = FENC_ERROR_INVALID_INPUT;
+	if(0 != element_cmp(prodT, tempGT)){
+		result = FENC_ERROR_INVALID_KEY;
 		goto cleanup;
 	}
 

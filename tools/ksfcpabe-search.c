@@ -84,7 +84,7 @@ int read_inputfile(char *inputfile, char **abe_blob64)
 		if((input_len = read_file(fp, &input_buf)) > 0) {
 			// printf("Input file: %s\n", input_buf);
 			tokenize_inputfile(input_buf, abe_blob64, &aes_blob64, &iv_blob64);
-			debug("abe ciphertext = '%s'\n", abe_blob64);
+			debug("abe ciphertext = '%s'\n", *abe_blob64);
 			//debug("init vector = '%s'\n", iv_blob64);
 			//debug("aes ciphertext = '%s'\n", aes_blob64);
 			free(input_buf);
@@ -127,6 +127,8 @@ FENC_ERROR search_inputfile(char *input_file, char *index_file, fenc_context *co
 
 	/* Match ciphertext. */
 	result = libfenc_match_KSFCP(context, &ciphertext, trapdoor, Q);
+	report_error("Matching ciphertext", result);
+
 	if(result != FENC_ERROR_NONE){
 		goto cleanup;
 	}
@@ -136,7 +138,7 @@ FENC_ERROR search_inputfile(char *input_file, char *index_file, fenc_context *co
 cleanup:
 	//ciphertext
 
-	free(data);
+	//free(data);
 	return result;
 }
 
@@ -256,31 +258,31 @@ int search(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, char *p
 	out_fp = fopen(outfile, "w");
 	while(freadline(input_file, MAX_PATH_SIZE, fp))
 	{
-		freadline(input_file, MAX_PATH_SIZE, fp);
+		freadline(index_file, MAX_PATH_SIZE, fp);
 		FENC_ERROR search_result = search_inputfile(input_file, index_file, &context, &trapdoor, &Q);
 
 		char Q_file[MAX_PATH_SIZE];
+		memset(Q_file, 0, MAX_PATH_SIZE);
 		strcat(Q_file, input_file);
 		strcat(Q_file, ".Q");
 
 		if(search_result == FENC_ERROR_NONE){
 			fprintf(out_fp, "%s\n%s\n", input_file, Q_file);
-		}
 
-		libfenc_export_Q_KSFCP(&context, &Q, Q_buf, SIZE, &Q_buf_len);
-		char *bin_Q_buf = NewBase64Encode(Q_buf, Q_buf_len, FALSE, &b64_Q_buf_len);
+			/* export Q */
+			libfenc_export_Q_KSFCP(&context, &Q, Q_buf, SIZE, &Q_buf_len);
+			char *bin_Q_buf = NewBase64Encode(Q_buf, Q_buf_len, FALSE, &b64_Q_buf_len);
 
-		FILE *Q_fp = fopen(Q_file, "w");
-		if(Q_fp != NULL) {
-			fprintf(Q_fp, "%s", b64_Q_buf_len);
+			FILE *Q_fp = fopen(Q_file, "w");
+			if(Q_fp != NULL) {
+				fprintf(Q_fp, "%s", bin_Q_buf);
+			}
+			else {
+				perror("Error writing Q.");
+			}
+			fclose(Q_fp);
+			free(bin_Q_buf);
 		}
-		else {
-			perror("Error writing Q.");
-		}
-		fclose(Q_fp);
-
-		/* free allocated memory */
-		free(bin_Q_buf);
 
 	}
 	fclose(out_fp);
