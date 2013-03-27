@@ -90,7 +90,7 @@ typedef struct _fenc_index_KSFCP {
 /* for KSF */
 typedef struct _fenc_index_HK_KSFCP {
 	uint32					len;
-    uint8					buffer[256];
+    uint8					buffer[MAX_INDEX_BUFFER_SIZE];
 } fenc_index_HK_KSFCP;
 
 /*!

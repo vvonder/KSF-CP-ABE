@@ -163,7 +163,9 @@ FENC_ERROR search_inputfile(char *input_file, char *index_file, fenc_context *co
 		uint8 *digest = HMAC(EVP_sha1(), HK_buf, HK_buf_len, R, R_SIZE, NULL, NULL);
 
 		fread(b64_MAC, sizeof(uint8), BASE64_MAC_SIZE, fp);
+
 		char *MAC = NewBase64Decode((const char *) b64_MAC, BASE64_MAC_SIZE, &serialized_len);
+/*
 #ifdef DEBUG
 		debug("Matching index %d\n", i);
 		debug("digest: ");
@@ -171,6 +173,7 @@ FENC_ERROR search_inputfile(char *input_file, char *index_file, fenc_context *co
 		debug("MAC: ");
 		print_buffer_as_hex(MAC, MAC_SIZE);
 #endif
+*/
 		if(0 == strncmp(digest, MAC, MAC_SIZE)){
 			/* matched */
 			result = FENC_ERROR_NONE;

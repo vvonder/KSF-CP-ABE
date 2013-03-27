@@ -25,6 +25,7 @@ typedef enum _FENC_ATTRIBUTE_NODE_TYPE {
 
 #define	MAX_INDEX_KEYWORDS	256
 #define KEYWORD_SIZE 256
+#define	MAX_INDEX_BUFFER_SIZE	256
 
 /* Maximum attribute string length in bytes (this includes a NULL termination byte.) */
 #define MAX_ATTRIBUTE_STR	256
