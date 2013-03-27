@@ -61,7 +61,7 @@ char *freadline(char *str, int num, FILE *stream)
 	char *result = fgets(str, num, stream);
 	if(result != NULL){
 		len = strlen(str);
-		while(len>0 && str[len-1] == '\r' || str[len-1] == '\n'){
+		while(len>0 && (str[len-1] == '\r' || str[len-1] == '\n')){
 			str[len-1] = '\0';
 			len--;
 		}
