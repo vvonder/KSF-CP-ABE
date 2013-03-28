@@ -2,6 +2,8 @@
 #include <getopt.h>
 #include "common.h"
 
+#include "benchmark.h"
+
 int gen_abe_scheme_params(FENC_SCHEME_TYPE scheme, char *g_params, char *secret_params, char *public_params);
 /* Description: mgabe-setup takes no arguments and simply reads in the global parameters from the filesystem,
  and generates the public parameters (or public key) and the master secret parameters (or master secret key).
@@ -88,6 +90,8 @@ int gen_abe_scheme_params(FENC_SCHEME_TYPE scheme, char *g_params, char *secret_
 	char *publicBuffer = NULL;
 	char *secretBuffer = NULL;
 
+TEST_INIT("setup.txt")
+
 	/* Clear data structures. */
 	memset(&context, 0, sizeof(fenc_context));
 	memset(&group_params, 0, sizeof(fenc_group_params));
@@ -106,7 +110,9 @@ int gen_abe_scheme_params(FENC_SCHEME_TYPE scheme, char *g_params, char *secret_
 	fp = fopen(g_params, "r");
 	if (fp != NULL) {
 		libfenc_load_group_params_from_file(&group_params, fp);
+START
 		libfenc_get_pbc_pairing(&group_params, pairing);
+STOP
 	} else {
 		perror("Could not open parameters file.\n");
 		goto cleanup;
@@ -117,7 +123,9 @@ int gen_abe_scheme_params(FENC_SCHEME_TYPE scheme, char *g_params, char *secret_
 	result = context.generate_global_params(&global_params, &group_params);
 	report_error("Loading global parameters", result);
 
+START
 	result = libfenc_gen_params(&context, &global_params);
+STOP
 	report_error("Generating scheme parameters and secret key", result);
 
 	/* Serialize the public parameters into a buffer */
@@ -127,6 +135,7 @@ int gen_abe_scheme_params(FENC_SCHEME_TYPE scheme, char *g_params, char *secret_
 		perror("malloc failed.");
 		return 1;
 	}
+
 	/* Export public parameters to buffer with the right size */
 	result = libfenc_export_public_params(&context, public_params_buf, serialized_len, &serialized_len, FALSE);
 	report_error("Exporting public parameters", result);
@@ -176,6 +185,9 @@ cleanup:
 	free(public_params_buf);
 	free(publicBuffer);
 	free(secretBuffer);
+
+PRINT_LINE
+TEST_END
 	return 0;
 }
 
