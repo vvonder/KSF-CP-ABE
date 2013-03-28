@@ -216,8 +216,8 @@ int generate_keys(char *outfile, FENC_SCHEME_TYPE scheme, char *g_params, char *
 	}
 	fclose(fp);
 
-	debug("public params input = '%s'\n", public_params_buf);
-	debug("secret params input = '%s'\n", secret_params_buf);
+	//debug("public params input = '%s'\n", public_params_buf);
+	//debug("secret params input = '%s'\n", secret_params_buf);
 
 	/* base-64 decode */
 	uint8 *bin_public_buf = NewBase64Decode((const char *) public_params_buf, pub_len, &serialized_len);

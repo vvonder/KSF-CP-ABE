@@ -34,7 +34,7 @@ typedef enum Scheme SchemeType;
 #endif
 
 #define KEYSIZE_MAX 32768
-#define BUFSIZE 2048
+#define BUFSIZE KEYSIZE_MAX
 #define SIZE_MAX KEYSIZE_MAX
 #define MAX_ATTRIBUTES 100
 #define SESSION_KEY_LEN 16

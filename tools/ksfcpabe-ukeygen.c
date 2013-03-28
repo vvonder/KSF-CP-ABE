@@ -93,7 +93,7 @@ int gen_ukeys(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, char
 	}
 	fclose(fp);
 
-	debug("public params input = '%s'\n", public_params_buf);
+	//debug("public params input = '%s'\n", public_params_buf);
 
 	/* base-64 decode */
 	uint8 *bin_public_buf = NewBase64Decode((const char *) public_params_buf, pub_len, &serialized_len);
@@ -108,6 +108,8 @@ int gen_ukeys(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, char
 	upkBuffer = (uint8 *) malloc(KEYSIZE_MAX);
 	memset(upkBuffer, 0, KEYSIZE_MAX);
 
+	debug("Generating USK...\n");
+
 	result = libfenc_export_usk_KSFCP(&context, &usk, uskBuffer, KEYSIZE_MAX, &usk_len);
 	if(result != FENC_ERROR_NONE) {
 		report_error("Generating USK error!", result);
@@ -121,6 +123,8 @@ int gen_ukeys(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, char
 		fprintf(fp, "%s", b64_usk_buf);
 	}
 	fclose(fp);
+
+	debug("Generating UPK...\n");
 
 	result = libfenc_export_upk_KSFCP(&context, &upk, upkBuffer, KEYSIZE_MAX, &upk_len);
 	if(result != FENC_ERROR_NONE) {

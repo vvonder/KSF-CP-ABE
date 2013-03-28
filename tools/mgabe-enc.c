@@ -226,7 +226,7 @@ int abe_encrypt(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, ch
 	result = libfenc_gen_params(&context, &global_params);
 	report_error("Generating scheme parameters and secret key", result);
 
-	debug("Reading the public parameters file = %s\n", public_params);
+	//debug("Reading the public parameters file = %s\n", public_params);
 	/* read file */
 	fp = fopen(public_params, "r");
 	if(fp != NULL) {

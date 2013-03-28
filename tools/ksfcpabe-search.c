@@ -191,8 +191,8 @@ FENC_ERROR search_inputfile(char *input_file, char *index_file, fenc_context *co
 
 cleanup:
 	//ciphertext
+	free(data);
 
-	//free(data);
 	return result;
 }
 
@@ -263,7 +263,7 @@ int search(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, char *p
 	}
 	fclose(fp);
 
-	debug("public params input = '%s'\n", public_params_buf);
+	//debug("public params input = '%s'\n", public_params_buf);
 
 	/* base-64 decode public parameters */
 	uint8 *bin_public_buf = NewBase64Decode((const char *) public_params_buf, pub_len, &serialized_len);
@@ -281,11 +281,12 @@ int search(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, char *p
 		if((trapdoor_len = read_file(fp, &trapdoor_buf)) > 0) {
 			size_t bin_trapdoor_len;
 			uint8 *bin_trapdoor_buf = NewBase64Decode((const char *) trapdoor_buf, trapdoor_len, &bin_trapdoor_len);
-			free(trapdoor_buf);
 
 			result = libfenc_import_trapdoor_KSFCP(&context, &trapdoor, bin_trapdoor_buf, bin_trapdoor_len);
 			report_error("Importing trapdoor", result);
-			free(bin_public_buf);
+
+			free(trapdoor_buf);
+			free(bin_trapdoor_buf);
 		}
 	}
 	else {
