@@ -3,6 +3,8 @@
 #include <math.h>
 #include "common.h"
 
+#include "benchmark.h"
+
 #define SIZE BUFSIZE
 
 #define DEFAULT_KEYFILE "private.key"
@@ -138,6 +140,8 @@ int generate_keys(char *outfile, FENC_SCHEME_TYPE scheme, char *g_params, char *
 	uint8 output_str[SIZE];
 	uint8 *buffer = NULL;
 
+TEST_INIT("keygen.txt")
+
 	/* Clear data structures. */
 	memset(&context, 0, sizeof(fenc_context));
 	memset(&group_params, 0, sizeof(fenc_group_params));
@@ -251,7 +255,9 @@ int generate_keys(char *outfile, FENC_SCHEME_TYPE scheme, char *g_params, char *
 		free(attribute_string);
 	}
 
+START
 	result = libfenc_extract_key(&context, &func_object_input, &key);
+STOP
 	report_error("Extracting a decryption key", result);
 
 	buffer = (uint8 *) malloc(KEYSIZE_MAX);
@@ -310,6 +316,10 @@ cleanup:
 
 	/* free buffer */
 	free(buffer);
+
+PRINT_LINE
+TEST_END
+
 	return 0;
 }
 

@@ -9,6 +9,8 @@
 #include "openssl/hmac.h"
 #include <math.h>
 
+#include "benchmark.h"
+
 #define SIZE BUFSIZE
 
 /* include code that creates policy by hand */
@@ -195,6 +197,9 @@ int abe_encrypt(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, ch
 	// size_t session_key_len;
 	char pol_str[MAX_POLICY_STR];
 	int pol_str_len = MAX_POLICY_STR;
+
+TEST_INIT("encrypt.txt")
+
 	/* Clear data structures. */
 	memset(&context, 0, sizeof(fenc_context));
 	memset(&group_params, 0, sizeof(fenc_group_params));
@@ -277,9 +282,11 @@ int abe_encrypt(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, ch
 	result = libfenc_import_public_params(&context, bin_public_buf, serialized_len);
 	// report_error("Importing public parameters", result);
 
+START
 	/* key encapsulation to obtain session key from policy */
 	result = libfenc_kem_encrypt(&context, &func_object_input, SESSION_KEY_LEN, (uint8 *)session_key, &ciphertext);
-
+STOP
+TEST_END
 	/* generated PSK from policy string */
 	debug("Generated session key: ");
 	print_buffer_as_hex((uint8 *) session_key, SESSION_KEY_LEN);
@@ -378,6 +385,7 @@ int abe_encrypt(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, ch
 	/* Shutdown the library. */
 	result = libfenc_shutdown();
 	report_error("Shutting down library", result);
+
 	return 0;
 }
 
@@ -418,6 +426,7 @@ int build_index(fenc_context *pcontext, char *keyword_file, char *index_file)
 	uint8 *R_buf, *MAC_buf;
 	int buf_len;
 
+TEST_INIT("encrypt_index.txt")
 
 	fp = fopen(keyword_file, "r");
 	while(i<MAX_INDEX_KEYWORDS
@@ -435,7 +444,9 @@ int build_index(fenc_context *pcontext, char *keyword_file, char *index_file)
 		printf("%d %s\n", strlen(keywords[i]), keywords[i]);
 #endif
 
+START
 	libfenc_build_index_KSFCP(pcontext, keywords, num_keywords, &index);
+STOP
 	report_error("Building Index", result);
 
 	libfenc_export_index_KSFCP(pcontext, &index, hk_buffer);
@@ -466,6 +477,8 @@ int build_index(fenc_context *pcontext, char *keyword_file, char *index_file)
 	}
 
 	fclose(fp);
+
+TEST_END
 
 	return 0;
 }
