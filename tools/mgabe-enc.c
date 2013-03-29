@@ -460,7 +460,7 @@ int build_index(fenc_context *pcontext, char *keyword_file, char *index_file)
 		MAC_buf = NewBase64Encode(digest, MAC_SIZE, FALSE, &buf_len);
 		fprintf(fp, "%s", MAC_buf);
 
-		free(digest);
+//		free(digest);
 		free(R_buf);
 		free(MAC_buf);
 	}
