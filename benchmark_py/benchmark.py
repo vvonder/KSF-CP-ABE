@@ -1,6 +1,5 @@
 import abe_toolkit
 import random
-from numpy.matlib import rand
 
 test_files = [setup_file, keygen_file, encrypt_file, decrypt_file, ukeygen_file,
     ksf_keygen_file, gen_trapdoor_file, encrypt_index_file, search_file, qdecrypt_file
