@@ -115,7 +115,7 @@ FENC_ERROR search_inputfile(char *input_file, char *index_file, fenc_context *co
 	char *abe_blob64 = NULL;
 	FILE *fp;
 	fenc_KSF_HK_KSFCP HK;
-	char *HK_buf[SIZE];
+	uint8 HK_buf[SIZE];
 	size_t HK_buf_len;
 	int i;
 	uint8 b64_R[BASE64_R_SIZE], b64_MAC[BASE64_MAC_SIZE];
@@ -126,6 +126,7 @@ TEST_APPEND("search.txt")
 		return FENC_ERROR_INVALID_CIPHERTEXT;
 
 	memset(&ciphertext, 0, sizeof(fenc_ciphertext));
+	memset(&HK, 0, sizeof(fenc_KSF_HK_KSFCP));
 
 	size_t abeLength;
 	uint8 *data = NewBase64Decode((const char *) abe_blob64, strlen(abe_blob64), &abeLength);
@@ -149,7 +150,7 @@ STOP
 	result = FENC_ERROR_INVALID_INPUT;
 
 	/* export HK */
-	libfenc_export_KSF_HK_KSFCP(&context, &HK, HK_buf, SIZE, &HK_buf_len);
+	libfenc_export_KSF_HK_KSFCP(context, &HK, HK_buf, SIZE, &HK_buf_len);
 #ifdef DEBUG
 	debug("HK: ");
 	print_buffer_as_hex(HK_buf, HK_buf_len);
@@ -186,7 +187,7 @@ START
 			debug("Matched CT file: %s\n", input_file);
 		}
 
-		free(digest);
+//		free(digest);
 		free(R);
 		free(MAC);
 

@@ -472,7 +472,7 @@ STOP
 		MAC_buf = NewBase64Encode(digest, MAC_SIZE, FALSE, &buf_len);
 		fprintf(fp, "%s", MAC_buf);
 
-		free(digest);
+//		free(digest);
 		free(R_buf);
 		free(MAC_buf);
 	}
