@@ -77,7 +77,7 @@ def keygen(key_string, scheme=FENC_SCHEME_KSFCP, group_params=group_params, secr
     return result
 
 def encrypt(key_string, data_file, scheme=FENC_SCHEME_KSFCP, group_params=group_params, public_params=public_params,
-            enc_file='encrypted.txt', keyword_file='keywords.txt', index_file='index.txt'):
+            enc_file='encrypted.txt', keyword_file=0, index_file='index.txt'):
     """
     @param key_string: Attribute string or Policy string
     @param data_file: Data file path for encryption
@@ -225,7 +225,7 @@ def testABE():
     f.write('\n'.join(['apple', 'orange', 'linux', 'fruit', 'ubuntu', 'apple juice', 'pear']))
     f.close()
     
-    encrypt(key_string='ONE>2#16  and (2 of (TWO <=20, three, four)) ', data_file='plaintext.txt')
+    encrypt(key_string='ONE>2#16  and (2 of (TWO <=20, three, four)) ', data_file='plaintext.txt', keyword_file='keywords.txt')
     decrypt()
 
 def testPolicy():
