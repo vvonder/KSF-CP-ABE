@@ -2,6 +2,8 @@
 #include <getopt.h>
 #include "common.h"
 
+#include "benchmark.h"
+
 #define SIZE BUFSIZE
 
 int gen_ukeys(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, char *uskfile ,char *upkfile);
@@ -36,6 +38,8 @@ int gen_ukeys(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, char
 	fenc_UPK_KSFCP upk;
 	size_t usk_len = 0, b64_usk_len = 0;
 	size_t upk_len = 0, b64_upk_len = 0;
+
+TEST_INIT("ukeygen.txt")
 
 	/* Clear data structures. */
 	memset(&context, 0, sizeof(fenc_context));
@@ -100,9 +104,9 @@ int gen_ukeys(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, char
 	/* Import the parameters from binary buffer: */
 	result = libfenc_import_public_params(&context, bin_public_buf, serialized_len);
 	report_error("Importing public parameters", result);
-
+START
 	result = libfenc_gen_ukey_KSFCP(&context, &usk, &upk);
-
+STOP
 	uskBuffer = (uint8 *) malloc(KEYSIZE_MAX);
 	memset(uskBuffer, 0, KEYSIZE_MAX);
 	upkBuffer = (uint8 *) malloc(KEYSIZE_MAX);
@@ -154,6 +158,9 @@ cleanup:
 	free(upkBuffer);
 	free(b64_usk_buf);
 	free(b64_upk_buf);
+
+PRINT_LINE
+TEST_END
 	return 0;
 }
 

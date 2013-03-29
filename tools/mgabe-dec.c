@@ -357,6 +357,7 @@ STOP
 	result = libfenc_shutdown();
 	report_error("Shutting down library", result);
 
+PRINT_LINE
 TEST_END
 
 	return magic_failed;

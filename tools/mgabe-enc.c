@@ -286,6 +286,7 @@ START
 	/* key encapsulation to obtain session key from policy */
 	result = libfenc_kem_encrypt(&context, &func_object_input, SESSION_KEY_LEN, (uint8 *)session_key, &ciphertext);
 STOP
+PRINT_LINE
 TEST_END
 	/* generated PSK from policy string */
 	debug("Generated session key: ");
@@ -478,6 +479,7 @@ STOP
 
 	fclose(fp);
 
+PRINT_LINE
 TEST_END
 
 	return 0;

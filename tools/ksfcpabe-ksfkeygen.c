@@ -2,6 +2,8 @@
 #include <getopt.h>
 #include "common.h"
 
+#include "benchmark.h"
+
 #define SIZE BUFSIZE
 
 int generate_ksfkeys(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, char *secret_params, char *skfile, char *upkfile, char *outfile);
@@ -37,6 +39,8 @@ int generate_ksfkeys(FENC_SCHEME_TYPE scheme, char *g_params, char *public_param
 	fenc_key sk;
 	fenc_UPK_KSFCP upk;
 	fenc_KSF_key_KSFCP ksfkey;
+
+TEST_INIT("ksf_keygen.txt")
 
 	/* Clear data structures. */
 	memset(&context, 0, sizeof(fenc_context));
@@ -181,8 +185,9 @@ int generate_ksfkeys(FENC_SCHEME_TYPE scheme, char *g_params, char *public_param
 	result = libfenc_import_upk_KSFCP(&context, &upk, bin_upk_buf, serialized_len);
 	report_error("Importing UPK", result);
 
-
+START
 	result = libfenc_extract_ksfkey_KSFCP(&context, &ksfkey, &sk, &upk);
+STOP
 	report_error("Extracting KSF key", result);
 
 	buffer = (uint8 *) malloc(KEYSIZE_MAX);
@@ -219,5 +224,7 @@ cleanup:
 	free(bin_upk_buf);
 	free(ksf_key_buf);
 
+PRINT_LINE
+TEST_END
 	return 0;
 }

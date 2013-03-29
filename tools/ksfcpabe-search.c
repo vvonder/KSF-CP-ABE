@@ -8,6 +8,8 @@
 #include "openssl/rand.h"
 #include "openssl/hmac.h"
 
+#include "benchmark.h"
+
 #define SIZE BUFSIZE
 
 void tokenize_inputfile(char* in, char** abe, char** aes, char** iv);
@@ -118,6 +120,8 @@ FENC_ERROR search_inputfile(char *input_file, char *index_file, fenc_context *co
 	int i;
 	uint8 b64_R[BASE64_R_SIZE], b64_MAC[BASE64_MAC_SIZE];
 
+TEST_APPEND("search.txt")
+
 	if(0 != read_inputfile(input_file, &abe_blob64))
 		return FENC_ERROR_INVALID_CIPHERTEXT;
 
@@ -130,8 +134,10 @@ FENC_ERROR search_inputfile(char *input_file, char *index_file, fenc_context *co
 	ciphertext.max_len = abeLength;
 	free(abe_blob64);
 
+START
 	/* Match ciphertext. */
 	result = libfenc_match_KSFCP(context, &ciphertext, trapdoor, Q, &HK);
+STOP
 	report_error("Matching ciphertext", result);
 
 	if(result != FENC_ERROR_NONE){
@@ -155,7 +161,7 @@ FENC_ERROR search_inputfile(char *input_file, char *index_file, fenc_context *co
 	fp = fopen(index_file, "r");
 
 	fscanf(fp, "SIZE:%d|", &num_index);
-
+START
 	for(i=0; i<num_index; i++){
 		fread(b64_R, sizeof(uint8), BASE64_R_SIZE, fp);
 		char *R = NewBase64Decode((const char *) b64_R, BASE64_R_SIZE, &serialized_len);
@@ -186,13 +192,15 @@ FENC_ERROR search_inputfile(char *input_file, char *index_file, fenc_context *co
 
 		if(result == FENC_ERROR_NONE) break;
 	}
-
+STOP
 	fclose(fp);
 
 cleanup:
 	//ciphertext
 	free(data);
 
+PRINT_LINE
+TEST_END
 	return result;
 }
 
@@ -298,6 +306,7 @@ int search(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, char *p
 
 
 	/* searching */
+TEST_CLEAR("search.txt")
 
 	char input_file[MAX_PATH_SIZE];
 	char index_file[MAX_PATH_SIZE];

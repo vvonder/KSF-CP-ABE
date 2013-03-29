@@ -7,6 +7,8 @@
 #include "openssl/err.h"
 #include "openssl/rand.h"
 
+#include "benchmark.h"
+
 #define SIZE BUFSIZE
 #define DEC_FILE "decrypted.txt"
 
@@ -157,6 +159,8 @@ Bool abe_quick_decrypt(FENC_SCHEME_TYPE scheme, char *g_params, char *public_par
 	uint8 usk_buf[SIZE];
 	uint8 Q_buf[SIZE];
 	int magic_failed;
+
+TEST_INIT("qdecrypt.txt")
 
 	/* Clear data structures. */
 	memset(&context, 0, sizeof(fenc_context));
@@ -335,8 +339,10 @@ Bool abe_quick_decrypt(FENC_SCHEME_TYPE scheme, char *g_params, char *public_par
 	ciphertext.data_len = abeLength;
 	ciphertext.max_len = abeLength;
 
+START
 	/* Descrypt the resulting ciphertext. */
 	result = libfenc_quick_decrypt_KSFCP(&context, &ciphertext, &secret_key, &usk, &Q, &aes_session_key);
+STOP
 	report_error("Decrypting the ciphertext", result);
 	if(result != FENC_ERROR_NONE) {
 		return -1;
@@ -403,6 +409,9 @@ Bool abe_quick_decrypt(FENC_SCHEME_TYPE scheme, char *g_params, char *public_par
 	/* Shutdown the library. */
 	result = libfenc_shutdown();
 	report_error("Shutting down library", result);
+
+PRINT_LINE
+TEST_END
 	return magic_failed;
 }
 

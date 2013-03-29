@@ -6,6 +6,13 @@
 	FILE *testfp = fopen(F, "w");\
 	struct timeval start, stop;\
 	double duration;
+#define TEST_APPEND(F) \
+	FILE *testfp = fopen(F, "a");\
+	struct timeval start, stop;\
+	double duration;
+#define TEST_CLEAR(F) \
+	FILE *testfp = fopen(F, "w");\
+	TEST_END
 #define START gettimeofday(&start, 0);
 #define STOP \
 	gettimeofday(&stop, 0);\

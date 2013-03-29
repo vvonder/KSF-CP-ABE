@@ -2,6 +2,8 @@
 #include <getopt.h>
 #include "common.h"
 
+#include "benchmark.h"
+
 #define SIZE BUFSIZE
 
 int generate_trapdoor(FENC_SCHEME_TYPE scheme, char *g_params, char *public_params, char *skfile, char *ksfkeyfile, char *uskfile, char *keyword, char *outfile);
@@ -68,6 +70,7 @@ int generate_trapdoor(FENC_SCHEME_TYPE scheme, char *g_params, char *public_para
 	fenc_KSF_key_KSFCP ksfkey;
 	fenc_trapdoor_KSFCP trapdoor;
 
+TEST_INIT("gen_trapdoor.txt")
 	/* Clear data structures. */
 	memset(&context, 0, sizeof(fenc_context));
 	memset(&group_params, 0, sizeof(fenc_group_params));
@@ -210,8 +213,9 @@ int generate_trapdoor(FENC_SCHEME_TYPE scheme, char *g_params, char *public_para
 	result = libfenc_import_ksfkey_KSFCP(&context, &ksfkey, bin_ksfkey_buf, serialized_len);
 	report_error("Importing KSF Key", result);
 
-
+START
 	result = libfenc_gen_trapdoor_KSFCP(&context, &sk, &ksfkey, &usk, keyword, &trapdoor);
+STOP
 	report_error("Generating KSF Trapdoor", result);
 
 	buffer = (uint8 *) malloc(KEYSIZE_MAX);
@@ -247,5 +251,8 @@ cleanup:
 	free(bin_usk_buf);
 	free(bin_ksfkey_buf);
 	free(trapdoor_buf);
+
+PRINT_LINE
+TEST_END
 	return 0;
 }
