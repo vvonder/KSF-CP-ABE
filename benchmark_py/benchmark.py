@@ -1,5 +1,6 @@
 import abe_toolkit
 import random
+import os
 
 test_files = [setup_file, keygen_file, encrypt_file, decrypt_file, ukeygen_file,
     ksf_keygen_file, gen_trapdoor_file, encrypt_index_file, search_file, qdecrypt_file
@@ -16,8 +17,8 @@ test_files = [setup_file, keygen_file, encrypt_file, decrypt_file, ukeygen_file,
     "qdecrypt.txt"
   )
 
-n_total = 5
-n_repeat = 5
+n_total = 50
+n_repeat = 10
 
 def read_result(result, result_file):
     f = open(result_file, 'r')
@@ -42,7 +43,9 @@ def test_setup():
     tfile = open(total_file, 'w')
     
     # Test some type of pairings
-    group_params = ['param/a.param', 'param/d224.param']
+    types = ['a', 'd159', 'd201', 'd224', 'e', 'f', 'g149', 'a1']
+    group_params = ['param/' + t + '.param' for t in types]
+    group_params = [os.path.abspath(i) for i in group_params]
     
     for g_param in group_params:
         result = []
@@ -403,15 +406,15 @@ def test_random_search():
 
 if __name__ == '__main__':
     test_setup()
-    test_keygen()
-    test_encrypt()
-    test_decrypt()
-    
-    test_ukeygen()
-    test_ksf_keygen()
-    test_trapdoor()
-    test_index()
-    test_qdecrypt()
-    test_search()
-    test_random_search()
+#    test_keygen()
+#    test_encrypt()
+#    test_decrypt()
+#    
+#    test_ukeygen()
+#    test_ksf_keygen()
+#    test_trapdoor()
+#    test_index()
+#    test_qdecrypt()
+#    test_search()
+#    test_random_search()
 
