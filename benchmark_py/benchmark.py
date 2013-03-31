@@ -450,7 +450,7 @@ def test_one_round():
     # Gen filepaths for search
     filepaths = 'filepaths.txt'
     f = open(filepaths, 'w')
-    f.write('\n'.join([enc_file, index_file ]))
+    f.write('\n'.join([enc_file, index_file]))
     f.close()
     
     abe_toolkit.setup()

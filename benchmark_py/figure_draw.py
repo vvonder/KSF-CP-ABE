@@ -64,6 +64,7 @@ def draw_setup():
     xlabels = ['a', 'd159', 'd201', 'd224', 'e', 'f', 'g149', 'a1']
     
     # add some
+    ax.set_xlabel('Pairing Type')
     ax.set_ylabel('Time(ms)')
     ax.set_ylim([0, 1000])
     ax.set_title('Setup benchmark')
@@ -76,7 +77,7 @@ def draw_setup():
         ax.text(rect.get_x() + rect.get_width() / 2., height + 10, '%.3f' % height,
                 ha='center', va='bottom')
 
-    plt.subplots_adjust(left=0.1, bottom=0.05, right=0.98, top=0.94, wspace=0, hspace=0)
+    plt.subplots_adjust(left=0.1, bottom=0.1, right=0.98, top=0.94, wspace=0, hspace=0)
     plt.grid(True, 'major', 'y')
     plt.savefig(os.path.join(figure_dir, 'setup.png'), dpi=150)
     plt.show()
@@ -186,6 +187,8 @@ def draw_random_search():
     xlabels = range(1, N + 1)
     
     # add some
+    ax.set_xlabel('Search Case')
+    ax.set_xlim([0, 10.2])
     ax.set_ylabel('Time(ms)')
     ax.set_ylim([0, 500])
     ax.set_title('Random search benchmark')
@@ -198,7 +201,7 @@ def draw_random_search():
         ax.text(rect.get_x() + rect.get_width() / 2., height + 10, '%.3f' % height,
                 ha='center', va='bottom')
 
-    plt.subplots_adjust(left=0.1, bottom=0.05, right=0.98, top=0.94, wspace=0, hspace=0)
+    plt.subplots_adjust(left=0.1, bottom=0.08, right=0.98, top=0.94, wspace=0, hspace=0)
     plt.grid(True, 'major', 'y')
     plt.savefig(os.path.join(figure_dir, 'random_search.png'), dpi=150)
     plt.show()
@@ -329,11 +332,6 @@ def draw_one_round():
     plt.savefig(os.path.join(figure_dir, 'one_round.png'), dpi=150)
     plt.show()
 
-
-
-
-
-
 def test():
     x = np.linspace(0, 10, 1000)
     y = np.sin(x)
@@ -362,7 +360,7 @@ if __name__ == '__main__':
 #    draw_trapdoor()
 #    draw_search()
 #    draw_random_search()
-#    draw_others()
-    draw_one_round()
+    draw_others()
+#    draw_one_round()
 
 
