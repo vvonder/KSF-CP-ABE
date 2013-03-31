@@ -4,8 +4,10 @@ import os
 import matplotlib
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.pylab as pl
-# from matplotlib.pylab import *
+import matplotlib.pylab as pylab
+from matplotlib.patches import Polygon
+from matplotlib.ticker import MaxNLocator
+
 
 # result sets path
 result_dir = 'results/50x10'
@@ -24,7 +26,8 @@ test_files = [
     "encrypt_index.txt",
     "search.txt",
     "qdecrypt.txt",
-    "random_search.txt"
+    "random_search.txt",
+    "round.txt"
 ]
 
 # gen total result files path
@@ -34,7 +37,8 @@ figure_dir = os.path.abspath(figure_dir)
 total_test_files = [os.path.join(result_dir, ('total_' + i)) for i in test_files]
 
 (setup_file, keygen_file, encrypt_file, decrypt_file, ukeygen_file,
-    ksf_keygen_file, gen_trapdoor_file, encrypt_index_file, search_file, qdecrypt_file, random_search_file
+    ksf_keygen_file, gen_trapdoor_file, encrypt_index_file, search_file, qdecrypt_file, random_search_file,
+    one_round_file
 ) = total_test_files
 
 # simsun = matplotlib.font_manager.FontProperties(fname='C:\Windows\Fonts\simsun.ttc')
@@ -167,9 +171,41 @@ def draw_search():
     plt.savefig(os.path.join(figure_dir, 'search.png'), dpi=150)
     plt.show()
 
+def draw_random_search():
+    result = []
+    read_result(result, random_search_file)
+    
+    N = len(result)
+ 
+    ind = np.arange(N)  # the x locations for the groups
+    width = 0.6  # the width of the bars
+    
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    rects = ax.bar(ind + (width / 2), result, width, color='blue')
+    xlabels = range(1, N + 1)
+    
+    # add some
+    ax.set_ylabel('Time(ms)')
+    ax.set_ylim([0, 500])
+    ax.set_title('Random search benchmark')
+    ax.set_xticks(ind + width)
+    ax.set_xticklabels(xlabels)
+    
+    # attach some text labels
+    for rect in rects:
+        height = rect.get_height()
+        ax.text(rect.get_x() + rect.get_width() / 2., height + 10, '%.3f' % height,
+                ha='center', va='bottom')
+
+    plt.subplots_adjust(left=0.1, bottom=0.05, right=0.98, top=0.94, wspace=0, hspace=0)
+    plt.grid(True, 'major', 'y')
+    plt.savefig(os.path.join(figure_dir, 'random_search.png'), dpi=150)
+    plt.show()
+
 def draw_others():
     result = []
-    others = [ukeygen_file, ksf_keygen_file, qdecrypt_file, random_search_file]
+    others = [ukeygen_file, ksf_keygen_file, qdecrypt_file]
     for ofile in others:
         r = []
         read_result(r, ofile)
@@ -184,11 +220,11 @@ def draw_others():
     fig = plt.figure()
     ax = fig.add_subplot(111)
     rects = ax.bar(ind + (width / 2), result, width, color='blue')
-    xlabels = ['UKeygen', 'KSF_Keygen', 'QDecrypt', 'Random Search']
+    xlabels = ['UKeygen', 'KSF_Keygen', 'QDecrypt']
     
     # add some
     ax.set_ylabel('Time(ms)')
-    ax.set_ylim([0, 300])
+    ax.set_ylim([0, 100])
     ax.set_title('Other function benchmark')
     ax.set_xticks(ind + width)
     ax.set_xticklabels(xlabels)
@@ -196,13 +232,107 @@ def draw_others():
     # attach some text labels
     for rect in rects:
         height = rect.get_height()
-        ax.text(rect.get_x() + rect.get_width() / 2., height + 10, '%.3f' % height,
+        ax.text(rect.get_x() + rect.get_width() / 2., height + 2, '%.3f' % height,
                 ha='center', va='bottom')
 
     plt.subplots_adjust(left=0.1, bottom=0.05, right=0.98, top=0.94, wspace=0, hspace=0)
     plt.grid(True, 'major', 'y')
     plt.savefig(os.path.join(figure_dir, 'others.png'), dpi=150)
     plt.show()
+
+def draw_one_round():
+    f = open(one_round_file, 'r')
+    result_s = f.readline()
+    f.close()
+    
+    result = result_s.split(' ')[:-1]
+    result = [float(i) for i in result]
+    
+    
+    result[5] += result[4]
+    del result[4]
+    print result
+    
+    N = len(result)
+    xlabels = ['Setup', 'ABE-KeyGen', 'Encrypt', 'Decrypt',
+               'KSF-KeyGen', 'Trapdoor', 'Index', 'Search', 'Q-Decrypt']
+
+#    ind = np.arange(N)  # the x locations for the groups
+#    width = 0.6  # the width of the bars
+#    
+#    fig = plt.figure()
+#    ax = fig.add_subplot(111)
+#    rects = ax.bar(ind + (width / 2), result, width, color='blue')
+#    
+#    # add some
+#    ax.set_ylabel('Time(ms)')
+#    ax.set_ylim([0, 600])
+#    ax.set_title('One round benchmark')
+#    ax.set_xticks(ind + width)
+#    ax.set_xticklabels(xlabels)
+#    
+#    # attach some text labels
+#    for rect in rects:
+#        height = rect.get_height()
+#        ax.text(rect.get_x() + rect.get_width() / 2., height + 5, '%.3f' % height,
+#                ha='center', va='bottom')
+#
+#    plt.subplots_adjust(left=0.1, bottom=0.05, right=0.98, top=0.94, wspace=0, hspace=0)
+#    plt.grid(True, 'major', 'y')
+#    plt.savefig(os.path.join(figure_dir, 'one_round.png'), dpi=150)
+#    plt.show()
+    
+    numTests = N
+    testNames = xlabels
+    testMeta = ['' for i in range(N)]
+    scores = result
+    rankings = np.round(np.random.uniform(0, 1, numTests) * 100, 0)
+    
+    fig = plt.figure(figsize=(9, 7))
+    ax1 = fig.add_subplot(111)
+    plt.subplots_adjust(left=0.13, right=0.88, top=0.94, bottom=0.05)
+    fig.canvas.set_window_title('One round benchmark')
+    pos = np.arange(numTests) + 0.5  # Center bars on the Y-axis ticks
+    rects = ax1.barh(pos, result, align='center', height=0.5, color='b')
+    
+    ax1.axis([0, 100, 0, N])
+    pylab.yticks(pos, testNames)
+    ax1.set_title('One round benchmark')
+
+    ax2 = ax1.twinx()
+    ax2.plot([100, 100], [0, N], 'white', alpha=0.1)
+    
+    def withnew(i, scr):
+        if testMeta[i] != '' : return '%.3f' % scr
+        else: return scr
+    scoreLabels = [withnew(i, scr) for i, scr in enumerate(scores)]
+    scoreLabels = ['%.3f' % i + j for i, j in zip(scoreLabels, testMeta)]
+    pylab.yticks(pos, scoreLabels)
+    ax2.set_ylabel('Time(ms)')
+
+    for rect in rects:
+        width = rect.get_width()    
+        rankStr = str('%.3f' % width) 
+        if (width < 50):  # The bars aren't wide enough to print the ranking inside
+            xloc = width + 5  # Shift the text to the right side of the right edge
+            clr = 'black'  # Black against white background
+            align = 'left'
+        else:
+            xloc = width - 5  # Shift the text to the left side of the right edge
+            clr = 'white'  # White on magenta
+            align = 'right'
+    
+        yloc = rect.get_y() + rect.get_height() / 2.0  # Center the text vertically in the bar
+        ax1.text(xloc, yloc, rankStr, horizontalalignment=align,
+                 verticalalignment='center', color=clr, weight='bold')
+    
+    plt.savefig(os.path.join(figure_dir, 'one_round.png'), dpi=150)
+    plt.show()
+
+
+
+
+
 
 def test():
     x = np.linspace(0, 10, 1000)
@@ -231,6 +361,8 @@ if __name__ == '__main__':
 #    draw_index()
 #    draw_trapdoor()
 #    draw_search()
-    draw_others()()
+#    draw_random_search()
+#    draw_others()
+    draw_one_round()
 
 

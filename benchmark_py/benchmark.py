@@ -17,8 +17,8 @@ test_files = [setup_file, keygen_file, encrypt_file, decrypt_file, ukeygen_file,
     "qdecrypt.txt"
   )
 
-n_total = 50
-n_repeat = 10
+n_total = 10
+n_repeat = 5
 
 def read_result(result, result_file):
     f = open(result_file, 'r')
@@ -55,7 +55,8 @@ def test_setup():
         avl = avl_result(result)
         print result
         print avl
-        tfile.write('%.3f' % avl + '\n') 
+        tfile.write('%.3f' % avl + '\n')
+        tfile.flush()
     tfile.close()
 
 def test_keygen():
@@ -77,7 +78,8 @@ def test_keygen():
         avl = avl_result(result)
         print result
         print avl
-        tfile.write('%.3f' % avl + '\n') 
+        tfile.write('%.3f' % avl + '\n')
+        tfile.flush()
     tfile.close()
 
 def test_encrypt():
@@ -105,7 +107,8 @@ def test_encrypt():
         avl = avl_result(result)
         print result
         print avl
-        tfile.write('%.3f' % avl + '\n') 
+        tfile.write('%.3f' % avl + '\n')
+        tfile.flush()
     tfile.close()
 
 def test_decrypt():
@@ -140,7 +143,8 @@ def test_decrypt():
         avl = avl_result(result)
         print result
         print avl
-        tfile.write('%.3f' % avl + '\n') 
+        tfile.write('%.3f' % avl + '\n')
+        tfile.flush()
     tfile.close()
 
 def test_ukeygen():
@@ -157,6 +161,7 @@ def test_ukeygen():
     print result
     print avl
     tfile.write('%.3f' % avl + '\n')
+    tfile.flush()
     tfile.close()
 
 def test_ksf_keygen():
@@ -175,6 +180,7 @@ def test_ksf_keygen():
     print result
     print avl
     tfile.write('%.3f' % avl + '\n')
+    tfile.flush()
     tfile.close()
 
 def test_trapdoor():
@@ -199,7 +205,8 @@ def test_trapdoor():
         avl = avl_result(result)
         print result
         print avl
-        tfile.write('%.3f' % avl + '\n') 
+        tfile.write('%.3f' % avl + '\n')
+        tfile.flush()
     tfile.close()
 
 def test_index():
@@ -234,7 +241,8 @@ def test_index():
         avl = avl_result(result)
         print result
         print avl
-        tfile.write('%.3f' % avl + '\n') 
+        tfile.write('%.3f' % avl + '\n')
+        tfile.flush()
     tfile.close()
 
 def test_search():
@@ -287,7 +295,8 @@ def test_search():
         avl = avl_result(result)
         print result
         print avl
-        tfile.write('%.3f' % avl + '\n') 
+        tfile.write('%.3f' % avl + '\n')
+        tfile.flush()
     tfile.close()
 
 def test_qdecrypt():
@@ -338,7 +347,8 @@ def test_qdecrypt():
         avl = avl_result(result)
         print result
         print avl
-        tfile.write('%.3f' % avl + '\n') 
+        tfile.write('%.3f' % avl + '\n')
+        tfile.flush()
     tfile.close()
 
 def test_random_search():
@@ -355,16 +365,27 @@ def test_random_search():
     policy_strings = ['att' + str(i) for i in range(n_total)]
     for i in range(1, n_total):
         policy_strings[i] = policy_strings[i - 1] + ' and ' + policy_strings[i]
-    
-    # Gen half n_total attributes input, this user can decrypt half above policys ciphertexts
-    att_string = ['att' + str(i) for i in range(n_total / 2)]
 
-    # Gen n_total keyword input
-    keyword_strings = ['keyword' + str(i) for i in range(n_total)]
+    # Gen n_total attributes input, this user can decrypt all above policys ciphertexts
+    att_string = ['att' + str(i) for i in range(n_total)]
+
+    # Gen some keyword input
+    keyword_num = n_total
+    keyword_strings = ['keyword' + str(i) for i in range(keyword_num)]
     
     keyword_file = 'keywords.txt'
     f = open(keyword_file, 'w')
     f.write('\n'.join(keyword_strings))
+    f.close()
+    
+    # Gen filepaths
+    filepaths = 'filepaths.txt'
+    f = open(filepaths, 'w')
+    num_list = range(n_total)
+    for k in num_list:
+        enc_file = 'encrypted' + str(k) + '.txt'
+        index_file = 'index' + str(k) + '.txt'
+        f.write('\n'.join([enc_file, index_file, '']))
     f.close()
     
     abe_toolkit.setup()
@@ -372,40 +393,91 @@ def test_random_search():
     abe_toolkit.keygen(key_string=','.join(att_string))
     abe_toolkit.ksf_keygen()
     abe_toolkit.trapdoor(keyword=keyword_strings[-1])
-  
-    # Encrypt files
-    for i in range(n_total):
-        enc_file = 'encrypted' + str(i) + '.txt'
-        index_file = 'index' + str(i) + '.txt'
-        abe_toolkit.encrypt(key_string=policy_strings[i], data_file=data_file, keyword_file=keyword_file,
-                            enc_file=enc_file, index_file=index_file)
-
-    # Random gen filepaths and search
-    filepaths = 'filepaths.txt'
- 
-    result = [] 
+    
     for j in range(n_repeat):
-        f = open(filepaths, 'w')
-        num_list = range(n_total)
-        random.shuffle(num_list)
-        for k in num_list:
-            enc_file = 'encrypted' + str(k) + '.txt'
-            index_file = 'index' + str(k) + '.txt'
-            f.write('\n'.join([enc_file, index_file, '']))
-        f.close()
-        
+        # Random change some policys 
+        random_policy_strings = policy_strings[:]
+        random.shuffle(random_policy_strings)
+        for k in range(len(random_policy_strings) / 2):
+            random_policy_strings[k] += ' and x'
+        random.shuffle(random_policy_strings)
+            
+        # Encrypt files
+        for i in range(n_total):
+            enc_file = 'encrypted' + str(i) + '.txt'
+            index_file = 'index' + str(i) + '.txt'
+            abe_toolkit.encrypt(key_string=random_policy_strings[i], data_file=data_file, keyword_file=keyword_file,
+                                enc_file=enc_file, index_file=index_file)
+
+        result = [] 
         abe_toolkit.search()
         read_result(result, search_file)
         avl = avl_result(result)
         print result
         print avl
-        tfile.write('%.3f' % avl + '\n') 
+        tfile.write('%.3f' % avl + '\n')
+        tfile.flush()
+    tfile.close()
+
+def test_one_round():
+    total_file = 'total_round.txt'
+    tfile = open(total_file, 'w')
+    
+    # Gen data file for encrypt
+    data_file = 'plaintext.txt'
+    dfile = open(data_file, 'w')
+    dfile.write('test')
+    dfile.close()
+
+    # Gen n_total 'and' policy input
+    policy_strings = ['att' + str(i) for i in range(n_total)]
+
+    # Gen n_total attributes input, this user can decrypt all above policys ciphertexts
+    att_string = ['att' + str(i) for i in range(n_total)]
+
+    # Gen some keyword input
+    keyword_num = 5
+    keyword_strings = ['keyword' + str(i) for i in range(keyword_num)]
+    
+    keyword_file = 'keywords.txt'
+    f = open(keyword_file, 'w')
+    f.write('\n'.join(keyword_strings))
+    f.close()
+    
+    enc_file = 'encrypted.txt'
+    index_file = 'index.txt'
+    
+    # Gen filepaths for search
+    filepaths = 'filepaths.txt'
+    f = open(filepaths, 'w')
+    f.write('\n'.join([enc_file, index_file ]))
+    f.close()
+    
+    abe_toolkit.setup()
+    abe_toolkit.ukeygen()
+    abe_toolkit.keygen(key_string=','.join(att_string))
+    abe_toolkit.ksf_keygen()
+    abe_toolkit.trapdoor(keyword=keyword_strings[-1])
+    abe_toolkit.encrypt(key_string=' and '.join(policy_strings), data_file=data_file, keyword_file=keyword_file,
+                                enc_file=enc_file, index_file=index_file)
+    abe_toolkit.decrypt()
+    abe_toolkit.quick_decrypt()
+    
+    for ifile in test_files:
+        result = []
+        read_result(result, ifile)
+        avl = avl_result(result)
+        print result
+        print avl
+        tfile.write('%.3f' % avl + ' ')
+    tfile.write('\n')
+    tfile.flush()
     tfile.close()
 
 # main
 
 if __name__ == '__main__':
-    test_setup()
+#    test_setup()
 #    test_keygen()
 #    test_encrypt()
 #    test_decrypt()
@@ -417,4 +489,5 @@ if __name__ == '__main__':
 #    test_qdecrypt()
 #    test_search()
 #    test_random_search()
+    test_one_round()
 
