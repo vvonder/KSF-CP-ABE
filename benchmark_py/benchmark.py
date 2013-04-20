@@ -433,7 +433,7 @@ def test_one_round():
     policy_strings = ['att' + str(i) for i in range(n_total)]
 
     # Gen n_total attributes input, this user can decrypt all above policys ciphertexts
-    att_string = ['att' + str(i) for i in range(n_total)]
+    att_strings = ['att' + str(i) for i in range(n_total)]
 
     # Gen some keyword input
     keyword_num = 5
@@ -455,11 +455,12 @@ def test_one_round():
     
     abe_toolkit.setup()
     abe_toolkit.ukeygen()
-    abe_toolkit.keygen(key_string=','.join(att_string))
+    abe_toolkit.keygen(key_string=','.join(att_strings))
     abe_toolkit.ksf_keygen()
     abe_toolkit.trapdoor(keyword=keyword_strings[-1])
     abe_toolkit.encrypt(key_string=' and '.join(policy_strings), data_file=data_file, keyword_file=keyword_file,
                                 enc_file=enc_file, index_file=index_file)
+    abe_toolkit.search()
     abe_toolkit.decrypt()
     abe_toolkit.quick_decrypt()
     
