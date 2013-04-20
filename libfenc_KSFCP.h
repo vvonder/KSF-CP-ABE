@@ -21,8 +21,6 @@ typedef struct _fenc_public_params_KSFCP {
 
 	/* for KSF */
 	element_t eggbetaT;
-	element_t hTWO;
-	element_t ggammaONE;
 
 } fenc_public_params_KSFCP;
 
@@ -46,7 +44,7 @@ typedef struct _fenc_secret_params_KSFCP {
 
 	/* for KSF */
 	element_t betaZ;
-	element_t gammaZ;
+
 } fenc_secret_params_KSFCP;
 
 /*!
@@ -77,8 +75,6 @@ typedef struct _fenc_ciphertext_KSFCP {
 	element_t				CONE[MAX_CIPHERTEXT_ATTRIBUTES];
 	element_t				DTWO[MAX_CIPHERTEXT_ATTRIBUTES];
 
-	/* for KSF */
-	element_t				CgammaONE;
 } fenc_ciphertext_KSFCP;
 
 /* for KSF */
@@ -108,7 +104,6 @@ typedef struct _fenc_key_KSFCP {
 
 /* for KSF */
 typedef struct _fenc_KSF_key_KSFCP {
-	element_t				KgammaTWO;
 	element_t				KbetaTWO;
 } fenc_KSF_key_KSFCP;
 
@@ -127,10 +122,8 @@ typedef struct _fenc_trapdoor_KSFCP {
 	uint32					reference_count;
 	fenc_attribute_list		attribute_list;
 	uint32					num_components;
-	element_t				TgammaTWO;
 	element_t				TbetaTWO;
 	element_t				LprimeTWO;
-	element_t				TTWO;
 	element_t				KXprimeONE[MAX_CIPHERTEXT_ATTRIBUTES];
 } fenc_trapdoor_KSFCP;
 
