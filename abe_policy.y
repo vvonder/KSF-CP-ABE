@@ -376,6 +376,10 @@ bit_marker_list( int gt, char* attr, char* tplate, int bits, uint64_t value )
 			p = kof2_policy(((uint64_t)1<<i & value) ? 1 : 2, p,
 											leaf_policy(bit_marker(attr, tplate, i, gt)));
 
+	for( i = bits; i < BITS; i++ )
+		p = kof2_policy(gt ? 1 : 2, p,
+				leaf_policy(bit_marker(attr, tplate, i, gt)));
+
 	return p;
 }
 
